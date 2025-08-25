@@ -1,0 +1,9 @@
+grammar tools.vitruv.stoex.Stoex with org.eclipse.xtext.common.Terminals
+
+generate stoex "http://www.vitruv.tools/stoex/Stoex"
+
+Model:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';

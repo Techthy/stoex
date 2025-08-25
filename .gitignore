@@ -77,12 +77,5 @@ Thumbs.db
 pom.properties
 
 
-# Explicitly ignore generated-by-Xtext files 
-tools.vitruv.stoex/src/main/java/tools/vitruv/stoex/scoping/StoexScopeProvider.java
-tools.vitruv.stoex/src/main/java/tools/vitruv/stoex/StoexStandaloneSetup.java
-tools.vitruv.stoex/src/main/java/tools/vitruv/stoex/StoexRuntimeModule.java
-tools.vitruv.stoex/src/main/java/tools/vitruv/stoex/validation/StoexValidator.java
-tools.vitruv.stoex.ide/src/main/java/tools/vitruv/stoex/ide/StoexIdeModule.java
-tools.vitruv.stoex.ide/src/main/java/tools/vitruv/stoex/ide/StoexIdeSetup.java
 
 

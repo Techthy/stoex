@@ -46,7 +46,7 @@
 **/model/generated/
 
 # Target generated folders (Maven, Xtend, etc.)
-target/
+**/target/**
 /target/xtend/
 /target/xtend-test/
 /target/generated-sources/

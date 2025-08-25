@@ -85,5 +85,4 @@ tools.vitruv.stoex/src/main/java/tools/vitruv/stoex/validation/StoexValidator.ja
 tools.vitruv.stoex.ide/src/main/java/tools/vitruv/stoex/ide/StoexIdeModule.java
 tools.vitruv.stoex.ide/src/main/java/tools/vitruv/stoex/ide/StoexIdeSetup.java
 
-tools.vitruv.stoex/src/main/java/tools/vitruv/stoex/generator/StoexGenerator.xtend
-tools.vitruv.stoex/src/test/java/tools/vitruv/stoex/tests/StoexParsingTest.xtend
+

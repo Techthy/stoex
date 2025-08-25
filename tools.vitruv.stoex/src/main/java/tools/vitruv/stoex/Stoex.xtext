@@ -1,9 +1,186 @@
 grammar tools.vitruv.stoex.Stoex with org.eclipse.xtext.common.Terminals
+hidden(WS, ML_COMMENT, SL_COMMENT)
 
-generate stoex "http://www.vitruv.tools/stoex/Stoex"
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
-Model:
-	greetings+=Greeting*;
-	
-Greeting:
-	'Hello' name=ID '!';
+generate stoex "http://vitruv.tools/stoex/Stoex"
+
+// Entry point
+Expression returns Expression:
+    IfElseExpr;
+
+// #############################
+// Stochastic Expressions
+
+IfElseExpr returns IfElse:
+    BoolAndExpr ({IfElseExpression.conditionExpression=current} '?' ifExpression=BoolAndExpr ':' elseExpression=BoolAndExpr)?;
+
+BooleanExpression:
+    BoolOrExpr ({BooleanOperatorExpression.left=current} operation=BooleanOperations right=BoolOrExpr)*;
+
+enum BooleanOperations:
+    AND | OR | XOR;
+
+BoolAndExpr returns BooleanExpression:
+    BoolOrExpr ({BooleanOperatorExpression.left=current} operation=AndOperation right=BoolOrExpr)*;
+
+enum AndOperation returns BooleanOperations:
+    AND;
+
+BoolOrExpr returns BooleanExpression:
+    CompareExpr ({BooleanOperatorExpression.left=current} operation=OrOperations right=CompareExpr)*;
+
+enum OrOperations returns BooleanOperations:
+    OR | XOR;
+
+CompareExpr returns Comparison:
+    SumExpr ({CompareExpression.left=current} operation=CompareOperations right=SumExpr)?;
+
+enum CompareOperations:
+    GREATER='>' | LESS='<' | EQUALS='==' | NOTEQUAL='<>' | GREATEREQUAL='>=' | LESSEQUAL='<=';
+
+SumExpr returns Term:
+    ProdExpr ({TermExpression.left=current} operation=TermOperations right=ProdExpr)*;
+
+enum TermOperations:
+    ADD='+' | SUB='-';
+
+ProdExpr returns Product:
+    PowExpr ({ProductExpression.left=current} operation=ProductOperations right=PowExpr)*;
+
+enum ProductOperations:
+    MULT='*' | DIV='/' | MOD='%';
+
+PowExpr returns Power:
+    UnaryExpr ({PowerExpression.base=current} '^' exponent=UnaryExpr)?;
+
+UnaryExpr returns Unary:
+    NegativeExpression | NotExpression | Atom;
+
+NotExpression:
+    'NOT' inner=UnaryExpr;
+
+NegativeExpression:
+    '-' inner=UnaryExpr;
+
+Atom returns Atom:
+    IntLiteral |
+    DoubleLiteral |
+    StringLiteral |
+    BoolLiteral |
+    FunctionLiteral |
+    Variable |
+    Parenthesis |
+    ProbabilityFunctionLiteral;
+
+DoubleLiteral:
+    value=DOUBLE;
+
+ProbabilityFunctionLiteral:
+    function_ProbabilityFunctionLiteral=Definition;
+
+Parenthesis:
+    '(' innerExpression=IfElseExpr ')';
+
+FunctionLiteral:
+    id=ID '(' (parameters_FunctionLiteral+=BoolAndExpr (',' parameters_FunctionLiteral+=BoolAndExpr)*)? ')';
+
+Variable:
+    id_Variable=AbstractNamedReference;
+
+AbstractNamedReference:
+    VariableReference | NamespaceReference;
+
+NamespaceReference:
+    {NamespaceReference} referenceName=ID '.' innerReference_NamespaceReference=AbstractNamedReference;
+
+VariableReference returns AbstractNamedReference:
+    {VariableReference} referenceName=ID;
+
+BoolLiteral:
+    value=BOOLEAN_KEYWORDS;
+
+StringLiteral:
+    value=STRING;
+
+IntLiteral:
+    value=DECINT;
+
+// #############################
+// Probability Functions
+
+Definition returns ProbabilityFunction:
+    ProbabilityMassFunction | ProbabilityDensityFunction;
+
+ProbabilityDensityFunction:
+    BoxedPDF;
+
+BoxedPDF:
+    'DoublePDF' '[' (samples+=RealPdfSample)+ ']';
+
+ProbabilityMassFunction:
+    'IntPMF' '[' (samples+=NumericIntSample)+ ']' |
+    'DoublePMF' '[' (samples+=NumericRealSample)+ ']' |
+    'EnumPMF' ('(' orderedDomain?='ordered' ')')? '[' (samples+=StringSample)+ ']' |
+    'BoolPMF' ('(' orderedDomain?='ordered' ')')? '[' (samples+=BoolSample)+ ']';
+
+NumericIntSample returns IntSample:
+    '(' value=SIGNED_INT ';' probability=NUMBER ')';
+
+NumericRealSample returns DoubleSample:
+    '(' value=SIGNED_NUMBER ';' probability=NUMBER ')';
+
+RealPdfSample returns ContinuousSample:
+    '(' value=SIGNED_NUMBER ';' probability=NUMBER ')';
+
+StringSample returns StringSample:
+    '(' value=STRING ';' probability=NUMBER ')';
+
+BoolSample returns BoolSample:
+    '(' value=BOOLEAN_KEYWORDS ';' probability=NUMBER ')';
+
+// #############################
+// Datatypes
+
+NUMBER returns ecore::EDouble:
+    DECINT | DOUBLE;
+
+SIGNED_NUMBER returns ecore::EDouble:
+    '-'? NUMBER;
+
+SIGNED_INT returns ecore::EInt:
+    '-'? DECINT;
+
+// #############################
+// Terminals
+
+terminal DOUBLE returns ecore::EDouble:
+    DECINT (('.' DIGIT*) | (('.' DIGIT*)? ('E' | 'e') ('-' | '+')? DECINT));
+
+terminal DECINT returns ecore::EInt:
+    '0' | ('1'..'9') DIGIT*;
+
+terminal BOOLEAN_KEYWORDS returns ecore::EBoolean:
+    'false' | 'true';
+
+terminal fragment DIGIT:
+    '0'..'9';
+
+terminal ID:
+    ('a'..'z' | 'A'..'Z' | '_') ('a'..'z' | 'A'..'Z' | '_' | '0'..'9')*;
+
+terminal STRING:
+    '"' ('\\' ('b' | 't' | 'n' | 'f' | 'r' | 'u' | '"' | "'" | '\\') | !('\\' | '"'))* '"' |
+    '\'' ('\\' ('b' | 't' | 'n' | 'f' | 'r' | 'u' | '"' | "'" | '\\') | !('\\' | '"'))* '\'';
+
+terminal ML_COMMENT:
+    '/*' -> '*/';
+
+terminal SL_COMMENT:
+    '//' !('\n' | '\r')* ('\r'? '\n')?;
+
+terminal WS:
+    (' ' | '\t' | '\r' | '\n')+;
+
+terminal ANY_OTHER:
+    .;

@@ -12,7 +12,6 @@ import org.eclipse.xtext.resource.XtextResourceSet;
 import com.google.inject.Injector;
 
 import tools.vitruv.stoex.StoexStandaloneSetup;
-import tools.vitruv.stoex.interpreter.TypeEnum;
 import tools.vitruv.stoex.interpreter.visitors.ExpressionEvaluationVisitor;
 import tools.vitruv.stoex.interpreter.visitors.TypeInferenceVisitor;
 import tools.vitruv.stoex.stoex.Expression;

@@ -112,17 +112,65 @@ IntLiteral:
 Definition returns ProbabilityFunction:
     ProbabilityMassFunction | ProbabilityDensityFunction;
 
+// CONTINUOUS DISTRIBUTIONS
+
 ProbabilityDensityFunction:
-    BoxedPDF;
+    BoxedPDF | 
+    NormalDistribution |
+    ExponentialDistribution |
+    GammaDistribution |
+    LognormalDistribution |
+    UniformDistribution |
+	BetaDistribution;
 
 BoxedPDF:
     'DoublePDF' '[' (samples+=RealPdfSample)+ ']';
 
+NormalDistribution:
+    'Normal' '(' mu=Expression ',' sigma=Expression ')';
+
+ExponentialDistribution:
+    'Exponential' '(' rate=Expression ')';
+
+GammaDistribution:
+    'Gamma' '(' alpha=Expression ',' theta=Expression ')';
+
+LognormalDistribution:
+    'Lognormal' '(' mu=Expression ',' sigma=Expression ')';
+
+UniformDistribution:
+    'Uniform' '(' a=Expression ',' b=Expression ')';
+
+BetaDistribution:
+    'Beta' '(' alpha=Expression ',' beta=Expression ')';
+
+// DISCRETE DISTRIBUTIONS
+
 ProbabilityMassFunction:
+	BernoulliDistribution |
+	BinomialDistribution |
+	PoissonDistribution |
+	GeometricDistribution |
+	DiscreteUniformDistribution |
     'IntPMF' '[' (samples+=NumericIntSample)+ ']' |
     'DoublePMF' '[' (samples+=NumericRealSample)+ ']' |
     'EnumPMF' ('(' orderedDomain?='ordered' ')')? '[' (samples+=StringSample)+ ']' |
     'BoolPMF' ('(' orderedDomain?='ordered' ')')? '[' (samples+=BoolSample)+ ']';
+
+BernoulliDistribution:
+    'Bernoulli' '(' p=Expression ')';
+
+BinomialDistribution:
+    'Binomial' '(' n=Expression ',' p=Expression ')';
+
+PoissonDistribution:
+    'Poisson' '(' lambda=Expression ')';
+
+GeometricDistribution:
+    'Geometric' '(' p=Expression ')';
+
+DiscreteUniformDistribution:
+    'DiscreteUniform' '(' a=Expression ',' b=Expression ')';
 
 NumericIntSample returns IntSample:
     '(' value=SIGNED_INT ';' probability=NUMBER ')';

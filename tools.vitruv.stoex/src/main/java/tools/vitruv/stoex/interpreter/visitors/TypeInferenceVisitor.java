@@ -25,6 +25,7 @@ import tools.vitruv.stoex.stoex.ProductOperations;
 import tools.vitruv.stoex.stoex.StringLiteral;
 import tools.vitruv.stoex.stoex.TermExpression;
 import tools.vitruv.stoex.stoex.TermOperations;
+import tools.vitruv.stoex.stoex.Variable;
 import tools.vitruv.stoex.stoex.util.StoexSwitch;
 
 /**
@@ -33,6 +34,7 @@ import tools.vitruv.stoex.stoex.util.StoexSwitch;
 public class TypeInferenceVisitor extends StoexSwitch<TypeEnum> {
 
     private final Map<Expression, TypeEnum> typeAnnotations = new HashMap<>();
+    private final Map<String, TypeEnum> variableTypes = new HashMap<>();
 
     // Store and retrieve type annotations like the original
     public void setTypeAnnotation(Expression expr, TypeEnum type) {
@@ -41,6 +43,19 @@ public class TypeInferenceVisitor extends StoexSwitch<TypeEnum> {
 
     public TypeEnum getTypeAnnotation(Expression expr) {
         return typeAnnotations.get(expr);
+    }
+
+    // Variable type management
+    public void setVariableType(String variableName, TypeEnum type) {
+        variableTypes.put(variableName, type);
+    }
+
+    public TypeEnum getVariableType(String variableName) {
+        return variableTypes.get(variableName);
+    }
+
+    public void clearVariableTypes() {
+        variableTypes.clear();
     }
 
     // Override the main doSwitch to store results
@@ -72,6 +87,31 @@ public class TypeInferenceVisitor extends StoexSwitch<TypeEnum> {
     @Override
     public TypeEnum caseStringLiteral(StringLiteral object) {
         return TypeEnum.STRING;
+    }
+
+    @Override
+    public TypeEnum caseVariable(Variable object) {
+        // Get the variable name from the AbstractNamedReference
+        String variableName = getVariableName(object);
+        TypeEnum varType = getVariableType(variableName);
+
+        if (varType == null) {
+            // If we don't know the variable type, we can't do type inference
+            // In StoexEvaluator context, variables are handled at runtime
+            return TypeEnum.DOUBLE; // Default assumption for variables
+        }
+
+        return varType;
+    }
+
+    /**
+     * Helper method to extract variable name from Variable object
+     */
+    private String getVariableName(Variable variable) {
+        if (variable.getId_Variable() != null) {
+            return variable.getId_Variable().getReferenceName();
+        }
+        return null;
     }
 
     @Override

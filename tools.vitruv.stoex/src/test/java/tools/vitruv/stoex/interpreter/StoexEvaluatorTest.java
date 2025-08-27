@@ -1,0 +1,202 @@
+package tools.vitruv.stoex.interpreter;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+@DisplayName("Stoex Evaluator Integration Tests")
+class StoexEvaluatorTest {
+
+    private StoexEvaluator evaluator;
+
+    @BeforeEach
+    void setUp() {
+        evaluator = new StoexEvaluator();
+    }
+
+    @Test
+    @DisplayName("Should evaluate simple expressions")
+    void testSimpleExpressions() {
+        assertEquals(42, evaluator.evaluate("42"));
+        assertEquals(3.14, evaluator.evaluate("3.14"));
+        assertEquals(true, evaluator.evaluate("true"));
+        assertEquals("hello", evaluator.evaluate("\"hello\""));
+    }
+
+    @Test
+    @DisplayName("Should evaluate arithmetic expressions")
+    void testArithmeticExpressions() {
+        assertEquals(7.0, evaluator.evaluate("3 + 4"));
+        assertEquals(14.0, evaluator.evaluate("2 + 3 * 4"));
+        assertEquals(20.0, evaluator.evaluate("(2 + 3) * 4"));
+        assertEquals(8.0, evaluator.evaluate("2 ^ 3"));
+    }
+
+    @Test
+    @DisplayName("Should evaluate boolean expressions")
+    void testBooleanExpressions() {
+        assertEquals(false, evaluator.evaluate("true AND false"));
+        assertEquals(true, evaluator.evaluate("true OR false"));
+        assertEquals(true, evaluator.evaluate("5 > 3"));
+        assertEquals(false, evaluator.evaluate("NOT true"));
+    }
+
+    @Test
+    @DisplayName("Should evaluate if-else expressions")
+    void testIfElseExpressions() {
+        assertEquals(42, evaluator.evaluate("true ? 42 : 24"));
+        assertEquals(24, evaluator.evaluate("false ? 42 : 24"));
+        assertEquals(42, evaluator.evaluate("5 > 3 ? 42 : 24"));
+    }
+
+    @Test
+    @DisplayName("Should evaluate with variables using map")
+    void testVariablesWithMap() {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("x", 10);
+        variables.put("y", 20);
+
+        assertEquals(30.0, evaluator.evaluate("x + y", variables));
+        assertEquals(50.0, evaluator.evaluate("x + y * 2", variables));
+    }
+
+    @Test
+    @DisplayName("Should evaluate with persistent variables")
+    void testPersistentVariables() {
+        evaluator.setVariable("radius", 5);
+        evaluator.setVariable("height", 10);
+
+        // Variables persist across evaluations
+        double area = (Double) evaluator.evaluate("PI * radius ^ 2");
+        double volume = (Double) evaluator.evaluate("PI * radius ^ 2 * height");
+
+        assertEquals(Math.PI * 25, area, 1e-10);
+        assertEquals(Math.PI * 25 * 10, volume, 1e-10);
+    }
+
+    @Test
+    @DisplayName("Should evaluate built-in functions")
+    void testBuiltInFunctions() {
+        assertEquals(4.0, evaluator.evaluate("sqrt(16)"));
+        assertEquals(5.0, evaluator.evaluate("abs(-5)"));
+        assertEquals(10.0, evaluator.evaluate("max(5, 10)"));
+        assertEquals(5.0, evaluator.evaluate("min(5, 10)"));
+    }
+
+    @Test
+    @DisplayName("Should evaluate built-in constants")
+    void testBuiltInConstants() {
+        double piResult = (Double) evaluator.evaluate("PI");
+        double eResult = (Double) evaluator.evaluate("E");
+
+        assertEquals(Math.PI, piResult, 1e-10);
+        assertEquals(Math.E, eResult, 1e-10);
+    }
+
+    @Test
+    @DisplayName("Should infer types correctly")
+    void testTypeInference() {
+        assertEquals(TypeEnum.INT, evaluator.inferType("42"));
+        assertEquals(TypeEnum.DOUBLE, evaluator.inferType("3.14"));
+        assertEquals(TypeEnum.BOOL, evaluator.inferType("true"));
+        assertEquals(TypeEnum.STRING, evaluator.inferType("\"hello\""));
+        assertEquals(TypeEnum.DOUBLE, evaluator.inferType("2 + 3.0"));
+        assertEquals(TypeEnum.BOOL, evaluator.inferType("5 > 3"));
+    }
+
+    @Test
+    @DisplayName("Should handle complex expressions")
+    void testComplexExpressions() {
+        evaluator.setVariable("x", 2);
+        evaluator.setVariable("y", 3);
+
+        // Complex mathematical expression
+        Object result = evaluator.evaluate("(x ^ 2 + y ^ 2) > 10 ? sqrt(x ^ 2 + y ^ 2) : x + y");
+        assertEquals(Math.sqrt(13), (Double) result, 0.001);
+
+        // Complex conditional with functions
+        evaluator.setVariable("temperature", 25);
+        Object weatherResult = evaluator.evaluate("temperature > 20 ? \"warm\" : \"cold\"");
+        assertEquals("warm", weatherResult);
+    }
+
+    @Test
+    @DisplayName("Should get and set variables")
+    void testVariableAccess() {
+        evaluator.setVariable("testVar", 123);
+        assertEquals(123, evaluator.getVariable("testVar"));
+
+        evaluator.setVariable("pi_approx", 3.14159);
+        assertEquals(3.14159, evaluator.getVariable("pi_approx"));
+    }
+
+    @Test
+    @DisplayName("Should handle parse errors gracefully")
+    void testParseErrors() {
+        assertThrows(RuntimeException.class, () -> {
+            evaluator.evaluate("invalid syntax +++");
+        });
+
+        assertThrows(RuntimeException.class, () -> {
+            evaluator.evaluate("2 + ");
+        });
+    }
+
+    @Test
+    @DisplayName("Should handle evaluation errors gracefully")
+    void testEvaluationErrors() {
+        assertThrows(RuntimeException.class, () -> {
+            evaluator.evaluate("undefinedVariable + 5");
+        });
+
+        assertThrows(RuntimeException.class, () -> {
+            evaluator.evaluate("5 / 0");
+        });
+
+        assertThrows(RuntimeException.class, () -> {
+            evaluator.evaluate("unknownFunction(5)");
+        });
+    }
+
+    @Test
+    @DisplayName("Should handle variables in type inference")
+    void testTypeInferenceWithVariables() {
+        evaluator.setVariable("x", 42);
+
+        // Type inference should work even with variables
+        assertEquals(TypeEnum.DOUBLE, evaluator.inferType("x + 3.14"));
+        assertEquals(TypeEnum.BOOL, evaluator.inferType("x > 0"));
+    }
+
+    @Test
+    @DisplayName("Should demonstrate practical usage scenarios")
+    void testPracticalScenarios() {
+        // Scenario 1: Mathematical calculations
+        evaluator.setVariable("a", 3);
+        evaluator.setVariable("b", 4);
+        double hypotenuse = (Double) evaluator.evaluate("sqrt(a ^ 2 + b ^ 2)");
+        assertEquals(5.0, hypotenuse, 1e-10);
+
+        // Scenario 2: Business logic
+        evaluator.setVariable("price", 100);
+        evaluator.setVariable("discount", 0.2);
+        double finalPrice = (Double) evaluator.evaluate("price * (1 - discount)");
+        assertEquals(80.0, finalPrice, 1e-10);
+
+        // Scenario 3: Conditional logic
+        evaluator.setVariable("age", 25);
+        String category = (String) evaluator.evaluate("age >= 18 ? \"adult\" : \"minor\"");
+        assertEquals("adult", category);
+
+        // Scenario 4: Complex mathematical formula
+        evaluator.setVariable("r", 5.0);
+        double sphereVolume = (Double) evaluator.evaluate("(4.0 / 3.0) * PI * r ^ 3");
+        assertEquals((4.0 / 3.0) * Math.PI * 125, sphereVolume, 1e-8);
+    }
+}

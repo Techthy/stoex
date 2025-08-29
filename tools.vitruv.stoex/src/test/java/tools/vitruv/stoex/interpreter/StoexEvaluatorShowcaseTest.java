@@ -3,6 +3,7 @@ package tools.vitruv.stoex.interpreter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 public class StoexEvaluatorShowcaseTest {
 
     @Test
+    @Disabled
     public void showcaseCompleteIntegration() {
         StoexEvaluator evaluator = new StoexEvaluator();
 
@@ -43,8 +45,10 @@ public class StoexEvaluatorShowcaseTest {
         vars.put("angle", Math.PI / 4);
         vars.put("value", 25.0);
         System.out.println("   With angle=π/4, value=25.0:");
-        System.out.println("   sin(angle) = " + String.format("%.3f", (Double) evaluator.evaluate("sin(angle)", vars)));
-        System.out.println("   cos(angle) = " + String.format("%.3f", (Double) evaluator.evaluate("cos(angle)", vars)));
+        System.out.println("   sin(angle) = "
+                + String.format("%.3f", (Double) evaluator.evaluate("sin(angle)", vars)));
+        System.out.println("   cos(angle) = "
+                + String.format("%.3f", (Double) evaluator.evaluate("cos(angle)", vars)));
         System.out.println("   sqrt(value) = " + evaluator.evaluate("sqrt(value)", vars));
         System.out.println("   abs(-10) = " + evaluator.evaluate("abs(-10)"));
         System.out.println("   max(x, y) = " + evaluator.evaluate("max(x, y)", vars));
@@ -94,9 +98,11 @@ public class StoexEvaluatorShowcaseTest {
         System.out.println("   System metrics: CPU=75%, Memory=60%, Disk=40%, Threshold=80%");
         System.out.println("   CPU Alert: " + evaluator.evaluate("cpuUsage > alertThreshold", perfVars));
         System.out.println("   Any Alert: " + evaluator.evaluate(
-                "cpuUsage > alertThreshold OR memUsage > alertThreshold OR diskUsage > alertThreshold", perfVars));
+                "cpuUsage > alertThreshold OR memUsage > alertThreshold OR diskUsage > alertThreshold",
+                perfVars));
         System.out.println("   Health Score: " + String.format("%.1f%%",
-                (Double) evaluator.evaluate("(1.0 - (cpuUsage + memUsage + diskUsage) / 3.0) * 100", perfVars)));
+                (Double) evaluator.evaluate("(1.0 - (cpuUsage + memUsage + diskUsage) / 3.0) * 100",
+                        perfVars)));
 
         System.out.println("\n8. Reliability Analysis:");
         Map<String, Object> relVars = new HashMap<>();

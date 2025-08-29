@@ -89,10 +89,9 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
     }
 
     private String resolveVariableName(AbstractNamedReference ref) {
-        if (ref instanceof VariableReference) {
-            return ((VariableReference) ref).getReferenceName();
-        } else if (ref instanceof NamespaceReference) {
-            NamespaceReference nsRef = (NamespaceReference) ref;
+        if (ref instanceof VariableReference variableReference) {
+            return variableReference.getReferenceName();
+        } else if (ref instanceof NamespaceReference nsRef) {
             return nsRef.getReferenceName() + "." + resolveVariableName(nsRef.getInnerReference_NamespaceReference());
         }
         throw new IllegalArgumentException("Unknown reference type: " + ref.getClass().getSimpleName());
@@ -111,8 +110,7 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
     // Distribution evaluation - return simple representation for now
     @Override
     public Object caseBernoulliDistribution(BernoulliDistribution object) {
-        Object pValue = doSwitch(object.getP());
-        double p = toDouble(pValue);
+        double p = object.getP();
 
         validateProbability(p);
 
@@ -123,11 +121,8 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
 
     @Override
     public Object caseBinomialDistribution(BinomialDistribution object) {
-        Object nValue = doSwitch(object.getN());
-        Object pValue = doSwitch(object.getP());
-
-        int n = toInt(nValue);
-        double p = toDouble(pValue);
+        double n = object.getN();
+        double p = object.getP();
 
         if (n <= 0)
             throw new IllegalArgumentException("Binomial n must be positive");
@@ -145,8 +140,7 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
 
     @Override
     public Object casePoissonDistribution(PoissonDistribution object) {
-        Object lambdaValue = doSwitch(object.getLambda());
-        double lambda = toDouble(lambdaValue);
+        double lambda = object.getLambda();
 
         if (lambda <= 0)
             throw new IllegalArgumentException("Poisson lambda must be positive");
@@ -166,11 +160,9 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
 
     @Override
     public Object caseNormalDistribution(NormalDistribution object) {
-        Object muValue = doSwitch(object.getMu());
-        Object sigmaValue = doSwitch(object.getSigma());
 
-        double mu = toDouble(muValue);
-        double sigma = toDouble(sigmaValue);
+        double mu = object.getMu();
+        double sigma = object.getSigma();
 
         if (sigma <= 0)
             throw new IllegalArgumentException("Normal sigma must be positive");
@@ -181,8 +173,7 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
 
     @Override
     public Object caseExponentialDistribution(ExponentialDistribution object) {
-        Object rateValue = doSwitch(object.getRate());
-        double rate = toDouble(rateValue);
+        double rate = object.getLambda();
 
         if (rate <= 0)
             throw new IllegalArgumentException("Exponential rate must be positive");
@@ -236,14 +227,16 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
         boolean right = toBoolean(rightValue);
 
         switch (object.getOperation()) {
-            case AND:
+            case AND -> {
                 return left && right;
-            case OR:
+            }
+            case OR -> {
                 return left || right;
-            case XOR:
+            }
+            case XOR -> {
                 return left ^ right;
-            default:
-                throw new UnsupportedOperationException("Unknown boolean operation: " + object.getOperation());
+            }
+            default -> throw new UnsupportedOperationException("Unknown boolean operation: " + object.getOperation());
         }
     }
 

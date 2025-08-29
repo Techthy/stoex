@@ -119,30 +119,22 @@ ProbabilityDensityFunction:
     NormalDistribution |
     ExponentialDistribution |
     GammaDistribution |
-    LognormalDistribution |
-    UniformDistribution |
-	BetaDistribution;
+    LognormalDistribution;
 
 BoxedPDF:
     'DoublePDF' '[' (samples+=RealPdfSample)+ ']';
 
 NormalDistribution:
-    'Normal' '(' mu=Expression ',' sigma=Expression ')';
+    'Normal' '(' mu=DOUBLE ',' sigma=DOUBLE ')';
 
 ExponentialDistribution:
-    'Exponential' '(' rate=Expression ')';
+    'Exponential' '(' lambda=DOUBLE ')';
 
 GammaDistribution:
-    'Gamma' '(' alpha=Expression ',' theta=Expression ')';
+    'Gamma' '(' alpha=DOUBLE ',' theta=DOUBLE ')';
 
 LognormalDistribution:
-    'Lognormal' '(' mu=Expression ',' sigma=Expression ')';
-
-UniformDistribution:
-    'Uniform' '(' a=Expression ',' b=Expression ')';
-
-BetaDistribution:
-    'Beta' '(' alpha=Expression ',' beta=Expression ')';
+    'Lognormal' '(' mu=DOUBLE ',' sigma=DOUBLE ')';
 
 // DISCRETE DISTRIBUTIONS
 
@@ -158,19 +150,19 @@ ProbabilityMassFunction:
     'BoolPMF' ('(' orderedDomain?='ordered' ')')? '[' (samples+=BoolSample)+ ']';
 
 BernoulliDistribution:
-    'Bernoulli' '(' p=Expression ')';
+    'Bernoulli' '(' p=DOUBLE ')';
 
 BinomialDistribution:
-    'Binomial' '(' n=Expression ',' p=Expression ')';
+    'Binomial' '(' n=DOUBLE ',' p=DOUBLE ')';
 
 PoissonDistribution:
-    'Poisson' '(' lambda=Expression ')';
+    'Poisson' '(' lambda=DOUBLE ')';
 
 GeometricDistribution:
-    'Geometric' '(' p=Expression ')';
+    'Geometric' '(' p=DOUBLE ')';
 
 DiscreteUniformDistribution:
-    'DiscreteUniform' '(' a=Expression ',' b=Expression ')';
+    'DiscreteUniform' '(' a=DOUBLE ',' b=DOUBLE ')';
 
 NumericIntSample returns IntSample:
     '(' value=SIGNED_INT ';' probability=NUMBER ')';

@@ -130,55 +130,61 @@ public class TypeInferenceVisitor extends StoexSwitch<TypeEnum> {
     @Override
     public TypeEnum caseBernoulliDistribution(BernoulliDistribution object) {
         // Validate parameter type
-        TypeEnum paramType = doSwitch(object.getP());
-        if (!isNumeric(paramType)) {
-            throw new RuntimeException("Bernoulli parameter must be numeric, got: " + paramType);
-            // throw new TypeMismatchException("Bernoulli parameter must be numeric, got: "
-            // + paramType);
-        }
+        // TypeEnum paramType = doSwitch(object.getP());
+        // if (!isNumeric(paramType)) {
+        // throw new RuntimeException("Bernoulli parameter must be numeric, got: " +
+        // paramType);
+        // throw new TypeMismatchException("Bernoulli parameter must be numeric, got: "
+        // + paramType);
+        // }
         return TypeEnum.BERNOULLI_PMF;
     }
 
     @Override
     public TypeEnum caseBinomialDistribution(BinomialDistribution object) {
-        TypeEnum nType = doSwitch(object.getN());
-        TypeEnum pType = doSwitch(object.getP());
+        // TypeEnum nType = doSwitch(object.getN());
+        // TypeEnum pType = doSwitch(object.getP());
 
-        if (!isInteger(nType)) {
-            throw new RuntimeException("Binomial n parameter must be integer, got: " + nType);
-        }
-        if (!isNumeric(pType)) {
-            throw new RuntimeException("Binomial p parameter must be numeric, got: " + pType);
-        }
+        // if (!isInteger(nType)) {
+        // throw new RuntimeException("Binomial n parameter must be integer, got: " +
+        // nType);
+        // }
+        // if (!isNumeric(pType)) {
+        // throw new RuntimeException("Binomial p parameter must be numeric, got: " +
+        // pType);
+        // }
         return TypeEnum.BINOMIAL_PMF;
     }
 
     @Override
     public TypeEnum casePoissonDistribution(PoissonDistribution object) {
-        TypeEnum lambdaType = doSwitch(object.getLambda());
-        if (!isNumeric(lambdaType)) {
-            throw new RuntimeException("Poisson lambda must be numeric, got: " + lambdaType);
-        }
+        // Validate parameter type
+        // TypeEnum lambdaType = doSwitch(object.getLambda());
+        // if (!isNumeric(lambdaType)) {
+        // throw new RuntimeException("Poisson lambda must be numeric, got: " +
+        // lambdaType);
+        // }
         return TypeEnum.POISSON_PMF;
     }
 
     @Override
     public TypeEnum caseNormalDistribution(NormalDistribution object) {
-        TypeEnum muType = doSwitch(object.getMu());
-        TypeEnum sigmaType = doSwitch(object.getSigma());
+        // TypeEnum muType = doSwitch(object.getMu());
+        // TypeEnum sigmaType = doSwitch(object.getSigma());
 
-        if (!isNumeric(muType) || !isNumeric(sigmaType)) {
-            throw new RuntimeException("Normal parameters must be numeric");
-        }
+        // if (!isNumeric(muType) || !isNumeric(sigmaType)) {
+        // throw new RuntimeException("Normal parameters must be numeric");
+        // }
         return TypeEnum.NORMAL_PDF;
     }
 
     @Override
     public TypeEnum caseExponentialDistribution(ExponentialDistribution object) {
-        TypeEnum rateType = doSwitch(object.getRate());
-        if (!isNumeric(rateType)) {
-            throw new RuntimeException("Exponential rate must be numeric, got: " + rateType);
-        }
+        // TypeEnum rateType = doSwitch(object.getRate());
+        // if (!isNumeric(rateType)) {
+        // throw new RuntimeException("Exponential rate must be numeric, got: " +
+        // rateType);
+        // }
         return TypeEnum.EXPONENTIAL_PDF;
     }
 

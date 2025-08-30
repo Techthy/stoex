@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import tools.vitruv.stoex.interpreter.operations.AddOperation;
 import tools.vitruv.stoex.stoex.AbstractNamedReference;
 import tools.vitruv.stoex.stoex.BernoulliDistribution;
 import tools.vitruv.stoex.stoex.BinomialDistribution;
@@ -23,7 +24,7 @@ import tools.vitruv.stoex.stoex.NotExpression;
 import tools.vitruv.stoex.stoex.Parenthesis;
 import tools.vitruv.stoex.stoex.PoissonDistribution;
 import tools.vitruv.stoex.stoex.PowerExpression;
-import tools.vitruv.stoex.stoex.ProbabilityFunctionLiteral;
+import tools.vitruv.stoex.stoex.ProbabilityFunction;
 import tools.vitruv.stoex.stoex.ProductExpression;
 import tools.vitruv.stoex.stoex.ProductOperations;
 import tools.vitruv.stoex.stoex.StringLiteral;
@@ -103,8 +104,8 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
     }
 
     @Override
-    public Object caseProbabilityFunctionLiteral(ProbabilityFunctionLiteral object) {
-        return doSwitch(object.getFunction_ProbabilityFunctionLiteral());
+    public Object caseProbabilityFunction(ProbabilityFunction object) {
+        return object;
     }
 
     // Distribution evaluation - return simple representation for now
@@ -161,14 +162,12 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
     @Override
     public Object caseNormalDistribution(NormalDistribution object) {
 
-        double mu = object.getMu();
         double sigma = object.getSigma();
 
         if (sigma <= 0)
             throw new IllegalArgumentException("Normal sigma must be positive");
 
-        // Box-Muller transform for normal sampling
-        return mu + sigma * random.nextGaussian();
+        return object;
     }
 
     @Override
@@ -178,8 +177,8 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
         if (rate <= 0)
             throw new IllegalArgumentException("Exponential rate must be positive");
 
-        // Inverse transform sampling for exponential
-        return -Math.log(1.0 - random.nextDouble()) / rate;
+        return object;
+
     }
 
     // Arithmetic operations
@@ -332,9 +331,8 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
     }
 
     private Object evaluateAdd(Object left, Object right) {
-        // Simple numeric addition for now
-        // You can extend this to handle distributions later
-        return toDouble(left) + toDouble(right);
+        AddOperation addOp = new AddOperation();
+        return addOp.evaluate(left, right);
     }
 
     private Object evaluateSubtract(Object left, Object right) {

@@ -24,7 +24,22 @@ public class AddOperation {
 	}
 
 	// Fallback that handles String and Boolean as well as the mixture of types
-	public double evaluate(Object left, Object right) {
+	public Object evaluate(Object left, Object right) {
+		if (left instanceof NormalDistribution leftNorm && right instanceof NormalDistribution rightNorm) {
+			return evaluate(leftNorm, rightNorm);
+		} else if (left instanceof ExponentialDistribution leftExp
+				&& right instanceof ExponentialDistribution rightExp) {
+			return evaluate(leftExp, rightExp);
+		} else if (left instanceof GammaDistribution leftGamma && right instanceof GammaDistribution rightGamma) {
+			return evaluate(leftGamma, rightGamma);
+		} else if (left instanceof ProbabilityDensityFunction leftPDF
+				&& right instanceof ProbabilityDensityFunction rightPDF) {
+			return evaluate(leftPDF, rightPDF);
+		}
+
+		System.out.println("Left type: " + (left == null ? "null" : left.getClass().getName()));
+		System.out.println("Right type: " + (right == null ? "null" : right.getClass().getName()));
+
 		double leftVal = toDouble(left);
 		double rightVal = toDouble(right);
 		return leftVal + rightVal;

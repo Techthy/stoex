@@ -19,7 +19,7 @@ import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.Parenthesis;
 import tools.vitruv.stoex.stoex.PoissonDistribution;
 import tools.vitruv.stoex.stoex.PowerExpression;
-import tools.vitruv.stoex.stoex.ProbabilityFunctionLiteral;
+import tools.vitruv.stoex.stoex.ProbabilityFunction;
 import tools.vitruv.stoex.stoex.ProductExpression;
 import tools.vitruv.stoex.stoex.ProductOperations;
 import tools.vitruv.stoex.stoex.StringLiteral;
@@ -115,9 +115,8 @@ public class TypeInferenceVisitor extends StoexSwitch<TypeEnum> {
     }
 
     @Override
-    public TypeEnum caseProbabilityFunctionLiteral(ProbabilityFunctionLiteral object) {
-        // Delegate to the actual probability function inside
-        return doSwitch(object.getFunction_ProbabilityFunctionLiteral());
+    public TypeEnum caseProbabilityFunction(ProbabilityFunction object) {
+        return doSwitch(object);
     }
 
     @Override

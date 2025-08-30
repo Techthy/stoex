@@ -71,13 +71,11 @@ Atom returns Atom:
     FunctionLiteral |
     Variable |
     Parenthesis |
-    ProbabilityFunctionLiteral;
+    ProbabilityFunction;
 
 DoubleLiteral:
     value=DOUBLE;
 
-ProbabilityFunctionLiteral:
-    function_ProbabilityFunctionLiteral=Definition;
 
 Parenthesis:
     '(' innerExpression=IfElseExpr ')';
@@ -109,7 +107,7 @@ IntLiteral:
 // #############################
 // Probability Functions
 
-Definition returns ProbabilityFunction:
+ProbabilityFunction:
     ProbabilityMassFunction | ProbabilityDensityFunction;
 
 // CONTINUOUS DISTRIBUTIONS

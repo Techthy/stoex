@@ -1,11 +1,11 @@
 package tools.vitruv.stoex.interpreter.visitors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import org.eclipse.xtext.testing.InjectWith;
 import org.eclipse.xtext.testing.extensions.InjectionExtension;
 import org.eclipse.xtext.testing.util.ParseHelper;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.google.inject.Inject;
 
+import tools.vitruv.stoex.stoex.BoxedPDF;
 import tools.vitruv.stoex.stoex.Expression;
+import tools.vitruv.stoex.stoex.GammaDistribution;
+import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.tests.StoexInjectorProvider;
 
 @ExtendWith(InjectionExtension.class)
@@ -167,4 +170,55 @@ class ExpressionEvaluationVisitorTest {
         // x^2 + y^2 = 4 + 9 = 13, which is > 10, so result should be sqrt(13) ≈ 3.606
         assertEquals(Math.sqrt(13), (Double) result, 0.001);
     }
+
+    @Test
+    @DisplayName("Should evaluate addition of two normal distributions")
+    void testAddNormalDistributions() throws Exception {
+        Expression expr = parseHelper.parse("Normal(0.0, 1.0) + Normal(2.0, 3.0)");
+        Object result = evaluator.doSwitch(expr);
+
+        System.out.println(result);
+
+        assertTrue(result instanceof NormalDistribution);
+        NormalDistribution resultDist = (NormalDistribution) result;
+        assertEquals(2, resultDist.getMu(), 1e-10);
+        assertEquals(Math.sqrt(10), resultDist.getSigma(), 1e-10);
+    }
+
+    @Test
+    @DisplayName("Should evaluate addition of two exponential distributions with same lambda")
+    void testAddExponentialDistributionsSameLambda() throws Exception {
+        Expression expr = parseHelper.parse("Exponential(1.0) + Exponential(1.0)");
+        Object result = evaluator.doSwitch(expr);
+
+        System.out.println(result);
+
+        assertTrue(result instanceof GammaDistribution);
+        GammaDistribution resultDist = (GammaDistribution) result;
+        assertEquals(2, resultDist.getAlpha(), 1e-10);
+        assertEquals(1.0, resultDist.getTheta(), 1e-10);
+    }
+
+    @Test
+    @DisplayName("Should evaluate addition of two exponential distributions with different lambda")
+    void testAddExponentialDistributionsDifferentLambda() throws Exception {
+        Expression expr = parseHelper.parse("Exponential(1.0) + Exponential(2.0)");
+        Object result = evaluator.doSwitch(expr);
+
+        System.out.println(result);
+
+        assertTrue(result instanceof BoxedPDF);
+    }
+
+    @Test
+    @Deprecated
+    @DisplayName("Should evaluate addition of Boxed PDF and Normal Distribution")
+    void testAddBoxedPDFAndNormalDistribution() throws Exception {
+        Expression expr = parseHelper
+                .parse("DoublePDF[(1.0;0.1) (2.0;0.2) (3.0;0.3) (4.0;0.25) (5.0;0.15)] + Normal(0.0, 1.0)");
+        Object result = evaluator.doSwitch(expr);
+
+        assertTrue(result instanceof BoxedPDF);
+    }
+
 }

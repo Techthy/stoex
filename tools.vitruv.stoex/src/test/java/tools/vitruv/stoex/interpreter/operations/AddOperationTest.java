@@ -1,68 +1,144 @@
 package tools.vitruv.stoex.interpreter.operations;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import tools.vitruv.stoex.stoex.BoxedPDF;
-import tools.vitruv.stoex.stoex.ContinuousSample;
+import tools.vitruv.stoex.stoex.ExponentialDistribution;
+import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.NormalDistribution;
+import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
 import tools.vitruv.stoex.stoex.StoexFactory;
 
 @DisplayName("Add Operation Tests")
 public class AddOperationTest {
 
-    @Test
-    @DisplayName("Should add two normal distributions")
-    public void testAddNormalDistributions() {
-        // Arrange
-        NormalDistribution input1 = StoexFactory.eINSTANCE.createNormalDistribution();
-        input1.setMu(1.0);
-        input1.setSigma(2.0);
+    private AddOperation addOperation;
 
-        NormalDistribution input2 = StoexFactory.eINSTANCE.createNormalDistribution();
-        input2.setMu(3.0);
-        input2.setSigma(4.0);
-
-        AddOperation addOperation = new AddOperation();
-
-        // Act
-        NormalDistribution result = addOperation.evaluate(input1, input2);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(4.0, result.getMu(), 0.001);
-        assertEquals(Math.sqrt(Math.pow(2.0, 2) + Math.pow(4.0, 2)), result.getSigma(), 0.001);
+    @BeforeEach
+    public void setUp() {
+        addOperation = new AddOperation();
     }
 
-    public void testAddBoxedPDF() {
-        // Arrange
-        BoxedPDF input1 = StoexFactory.eINSTANCE.createBoxedPDF();
-        ContinuousSample sample1_1 = StoexFactory.eINSTANCE.createContinuousSample();
-        sample1_1.setValue(0.2);
-        ContinuousSample sample1_2 = StoexFactory.eINSTANCE.createContinuousSample();
-        sample1_2.setValue(0.5);
-        input1.getSamples().add(sample1_1);
-        input1.getSamples().add(sample1_2);
+    @Test
+    @DisplayName("Should add two integers")
+    public void testAddIntegers() {
+        int result = addOperation.evaluate(2, 3);
+        assertEquals(5, result);
+    }
 
-        BoxedPDF input2 = StoexFactory.eINSTANCE.createBoxedPDF();
-        ContinuousSample sample2_1 = StoexFactory.eINSTANCE.createContinuousSample();
-        sample2_1.setValue(0.3);
-        ContinuousSample sample2_2 = StoexFactory.eINSTANCE.createContinuousSample();
-        sample2_2.setValue(0.4);
-        input2.getSamples().add(sample2_1);
-        input2.getSamples().add(sample2_2);
+    @Test
+    @DisplayName("Should add two doubles")
+    public void testAddDoubles() {
+        double result = addOperation.evaluate(2.5, 3.5);
+        assertEquals(6.0, result, 0.001);
+    }
 
-        AddOperation addOperation = new AddOperation();
+    @Test
+    @DisplayName("Should add double and integer")
+    public void testAddDoubleAndInteger() {
+        double result = addOperation.evaluate(2.5, 3);
+        assertEquals(5.5, result, 0.001);
+    }
 
-        // Act
-        BoxedPDF result = addOperation.evaluate(input1, input2);
+    // TODO: Test Strings
 
-        // Assert
-        assertNotNull(result);
-        // The resulting BoxedPDF should have a size of input1.size + input2.size - 1
-        assertEquals(input1.getSamples().size() + input2.getSamples().size() - 1, result.getSamples().size());
+    @Test
+    @DisplayName("Should add two Normal Distributions")
+    public void testAddNormalDistributions() {
+        NormalDistribution dist1 = StoexFactory.eINSTANCE.createNormalDistribution();
+        dist1.setMu(0);
+        dist1.setSigma(1);
+        NormalDistribution dist2 = StoexFactory.eINSTANCE.createNormalDistribution();
+        dist2.setMu(1);
+        dist2.setSigma(2);
+        NormalDistribution result = addOperation.evaluate(dist1, dist2);
+
+        // sum of normal distributions the mean is simply the sum of both means
+        assertEquals(1, result.getMu(), 0.001);
+        // the variance is the sum of both variances (sigma^2)
+        assertEquals(Math.sqrt(1 + 4), result.getSigma(), 0.001);
+    }
+
+    @Test
+    @DisplayName("Should add two Exponential Distributions with **same** lambda")
+    public void testAddExponentialDistributionsSameLambda() {
+        ExponentialDistribution dist1 = StoexFactory.eINSTANCE.createExponentialDistribution();
+        dist1.setLambda(0.5);
+        ExponentialDistribution dist2 = StoexFactory.eINSTANCE.createExponentialDistribution();
+        dist2.setLambda(0.5);
+        ProbabilityDensityFunction result = addOperation.evaluate(dist1, dist2);
+
+        assertTrue(result instanceof GammaDistribution);
+        GammaDistribution gammaResult = (GammaDistribution) result;
+        assertEquals(2, gammaResult.getAlpha(), 0.001);
+        assertEquals(1 / 0.5, gammaResult.getTheta(), 0.001);
+    }
+
+    @Test
+    @DisplayName("Should add two Exponential Distributions with **different** lambda")
+    public void testAddExponentialDistributionsDifferentLambda() {
+        ExponentialDistribution dist1 = StoexFactory.eINSTANCE.createExponentialDistribution();
+        dist1.setLambda(0.5);
+        ExponentialDistribution dist2 = StoexFactory.eINSTANCE.createExponentialDistribution();
+        dist2.setLambda(1.0);
+        ProbabilityDensityFunction result = addOperation.evaluate(dist1, dist2);
+
+        assertTrue(result instanceof BoxedPDF);
+    }
+
+    @Test
+    @DisplayName("Should add two Gamma Distributions with **same** theta")
+    public void testAddGammaDistributionsSameTheta() {
+        GammaDistribution dist1 = StoexFactory.eINSTANCE.createGammaDistribution();
+        dist1.setAlpha(2);
+        dist1.setTheta(3);
+        GammaDistribution dist2 = StoexFactory.eINSTANCE.createGammaDistribution();
+        dist2.setAlpha(3);
+        dist2.setTheta(3);
+        ProbabilityDensityFunction result = addOperation.evaluate(dist1, dist2);
+
+        assertTrue(result instanceof GammaDistribution);
+        GammaDistribution gammaResult = (GammaDistribution) result;
+        assertEquals(5, gammaResult.getAlpha(), 0.001);
+        assertEquals(3, gammaResult.getTheta(), 0.001);
+    }
+
+    @Test
+    @DisplayName("Should add two Gamma Distributions with **different** theta")
+    public void testAddGammaDistributionsDifferentTheta() {
+        GammaDistribution dist1 = StoexFactory.eINSTANCE.createGammaDistribution();
+        dist1.setAlpha(2);
+        dist1.setTheta(3);
+        GammaDistribution dist2 = StoexFactory.eINSTANCE.createGammaDistribution();
+        dist2.setAlpha(3);
+        dist2.setTheta(4);
+        ProbabilityDensityFunction result = addOperation.evaluate(dist1, dist2);
+
+        assertTrue(result instanceof BoxedPDF);
+    }
+
+    @Test
+    @DisplayName("Should add two BoxedPDFs")
+    public void testAddBoxedPDFs() {
+        BoxedPDF pdf1 = StoexFactory.eINSTANCE.createBoxedPDF();
+        BoxedPDF pdf2 = StoexFactory.eINSTANCE.createBoxedPDF();
+        ProbabilityDensityFunction result = addOperation.evaluate(pdf1, pdf2);
+
+        assertTrue(result instanceof BoxedPDF);
+    }
+
+    @Test
+    @DisplayName("Should add BoxedPDF and NormalDistribution")
+    public void testAddBoxedPDFAndNormalDistribution() {
+        BoxedPDF pdf = StoexFactory.eINSTANCE.createBoxedPDF();
+        NormalDistribution dist = StoexFactory.eINSTANCE.createNormalDistribution();
+        ProbabilityDensityFunction result = addOperation.evaluate(pdf, dist);
+
+        assertTrue(result instanceof BoxedPDF);
     }
 
 }

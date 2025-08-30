@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import tools.vitruv.stoex.stoex.BoxedPDF;
+import tools.vitruv.stoex.stoex.ContinuousSample;
 import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.NormalDistribution;
@@ -135,7 +136,15 @@ public class AddOperationTest {
     @DisplayName("Should add BoxedPDF and NormalDistribution")
     public void testAddBoxedPDFAndNormalDistribution() {
         BoxedPDF pdf = StoexFactory.eINSTANCE.createBoxedPDF();
+        for (int i = 0; i < 5; i++) {
+            ContinuousSample sample = StoexFactory.eINSTANCE.createContinuousSample();
+            sample.setValue(i);
+            sample.setProbability(1.0 / 5);
+            pdf.getSamples().add(sample);
+        }
         NormalDistribution dist = StoexFactory.eINSTANCE.createNormalDistribution();
+        dist.setMu(0);
+        dist.setSigma(1);
         ProbabilityDensityFunction result = addOperation.evaluate(pdf, dist);
 
         assertTrue(result instanceof BoxedPDF);

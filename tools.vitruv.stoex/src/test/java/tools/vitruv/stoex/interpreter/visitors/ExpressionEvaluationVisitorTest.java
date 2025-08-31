@@ -211,7 +211,6 @@ class ExpressionEvaluationVisitorTest {
     }
 
     @Test
-    @Deprecated
     @DisplayName("Should evaluate addition of Boxed PDF and Normal Distribution")
     void testAddBoxedPDFAndNormalDistribution() throws Exception {
         Expression expr = parseHelper

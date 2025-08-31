@@ -1,14 +1,16 @@
 package tools.vitruv.stoex.interpreter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import tools.vitruv.stoex.stoex.NormalDistribution;
 
 @DisplayName("Stoex Evaluator Integration Tests")
 class StoexEvaluatorTest {
@@ -199,4 +201,37 @@ class StoexEvaluatorTest {
         double sphereVolume = (Double) evaluator.evaluate("(4.0 / 3.0) * PI * r ^ 3");
         assertEquals((4.0 / 3.0) * Math.PI * 125, sphereVolume, 1e-8);
     }
+
+    // Probability Distributions
+
+    @Test
+    @DisplayName("Should add Normal distribution")
+    void testAddNormalDistribution() {
+        Object result = evaluator.evaluate("Normal(196.0, 15.0) + Normal(0.0, 1.0)");
+        assertTrue(result instanceof NormalDistribution);
+        assertEquals(((NormalDistribution) result).getMu(), 196.0, 0.001);
+        assertEquals(((NormalDistribution) result).getSigma(), Math.sqrt(15.0 * 15.0 + 1.0), 0.001);
+    }
+
+    @Test
+    @DisplayName("Should add Normal distribution, one as Variable")
+    void testAddNormalDistributionWithVariable() {
+        evaluator.setVariable("var1", "Normal(196.0, 15.0)");
+        Object result = evaluator.evaluate("var1 + Normal(0.0, 1.0)");
+        assertTrue(result instanceof NormalDistribution);
+        assertEquals(((NormalDistribution) result).getMu(), 196.0, 0.001);
+        assertEquals(((NormalDistribution) result).getSigma(), Math.sqrt(15.0 * 15.0 + 1.0), 0.001);
+    }
+
+    @Test
+    @DisplayName("Should add Normal distribution, both as Variables")
+    void testAddNormalDistributionWithVariables() {
+        evaluator.setVariable("var1", "Normal(196.0, 15.0)");
+        evaluator.setVariable("var2", "Normal(0.0, 1.0)");
+        Object result = evaluator.evaluate("var1 + var2");
+        assertTrue(result instanceof NormalDistribution);
+        assertEquals(((NormalDistribution) result).getMu(), 196.0, 0.001);
+        assertEquals(((NormalDistribution) result).getSigma(), Math.sqrt(15.0 * 15.0 + 1.0), 0.001);
+    }
+
 }

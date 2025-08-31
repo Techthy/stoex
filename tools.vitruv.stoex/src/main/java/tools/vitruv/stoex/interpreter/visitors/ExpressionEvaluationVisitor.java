@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import tools.vitruv.stoex.interpreter.StoexEvaluator;
 import tools.vitruv.stoex.interpreter.operations.AddOperation;
 import tools.vitruv.stoex.stoex.AbstractNamedReference;
 import tools.vitruv.stoex.stoex.BernoulliDistribution;
@@ -86,7 +87,13 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
         if (value == null) {
             throw new RuntimeException("Undefined variable: " + varName);
         }
-        return value;
+
+        if (value instanceof Number || value instanceof Boolean) {
+            return value;
+        }
+
+        StoexEvaluator evaluator = new StoexEvaluator();
+        return evaluator.evaluate((String) value);
     }
 
     private String resolveVariableName(AbstractNamedReference ref) {
@@ -439,4 +446,5 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
             throw new IllegalArgumentException("Probability must be between 0 and 1, got: " + p);
         }
     }
+
 }

@@ -42,7 +42,9 @@ public class AddOperation {
 
 		double leftVal = toDouble(left);
 		double rightVal = toDouble(right);
-		return leftVal + rightVal;
+		double result = leftVal + rightVal;
+
+		return result;
 	}
 
 	// General Case for all continuous distributions

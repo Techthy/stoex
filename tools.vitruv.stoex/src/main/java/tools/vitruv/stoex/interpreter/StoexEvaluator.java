@@ -8,6 +8,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.resource.XtextResourceSet;
+import org.eclipse.xtext.serializer.ISerializer;
 
 import com.google.inject.Injector;
 
@@ -25,12 +26,14 @@ public class StoexEvaluator {
     private final TypeInferenceVisitor typeInference;
     private final ExpressionEvaluationVisitor evaluator;
     private final ResourceSet resourceSet;
+    private final ISerializer serializer;
     private int expressionCounter = 0;
 
     public StoexEvaluator() {
         // Initialize Xtext for parsing
         Injector injector = new StoexStandaloneSetup().createInjectorAndDoEMFRegistration();
         this.resourceSet = injector.getInstance(XtextResourceSet.class);
+        this.serializer = injector.getInstance(ISerializer.class);
 
         // Initialize visitors
         this.typeInference = new TypeInferenceVisitor();
@@ -75,6 +78,15 @@ public class StoexEvaluator {
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to evaluate expression: " + expressionString, e);
+        }
+    }
+
+    public String serialize(Object expression) {
+        if (expression instanceof Expression expr) {
+            // Use Xtext's serializer to convert the Expression AST back to a string
+            return serializer.serialize(expr);
+        } else {
+            throw new IllegalArgumentException("Can only serialize Stoex Expressions.");
         }
     }
 

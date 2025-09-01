@@ -3,6 +3,7 @@ package tools.vitruv.stoex.interpreter;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import tools.vitruv.stoex.stoex.NormalDistribution;
+import tools.vitruv.stoex.stoex.StoexFactory;
 
 @DisplayName("Stoex Evaluator Integration Tests")
 class StoexEvaluatorTest {
@@ -232,6 +234,20 @@ class StoexEvaluatorTest {
         assertTrue(result instanceof NormalDistribution);
         assertEquals(((NormalDistribution) result).getMu(), 196.0, 0.001);
         assertEquals(((NormalDistribution) result).getSigma(), Math.sqrt(15.0 * 15.0 + 1.0), 0.001);
+    }
+
+    @Test
+    @DisplayName("Should Serialize a Normal Distribution")
+    void testSerializeNormalDistribution() {
+        NormalDistribution distribution = StoexFactory.eINSTANCE.createNormalDistribution();
+        distribution.setMu(196.0);
+        distribution.setSigma(15.0);
+        String serialized;
+        serialized = evaluator.serialize(distribution);
+
+        assertNotNull(serialized);
+        // Remove whitespace for comparison (this is ignored by the grammar anyway)
+        assertEquals("Normal(196.0,15.0)", serialized.replace(" ", ""));
     }
 
 }

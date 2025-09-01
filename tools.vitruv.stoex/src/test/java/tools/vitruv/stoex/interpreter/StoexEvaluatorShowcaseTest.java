@@ -70,16 +70,7 @@ public class StoexEvaluatorShowcaseTest {
                     String.format("%.3f", (Double) evaluator.evaluate("Normal(mu, sigma)", vars)));
         }
 
-        // 5. Type inference
-        System.out.println("\n5. Type Inference:");
-        System.out.println("   42 has type: " + evaluator.inferType("42"));
-        System.out.println("   3.14 has type: " + evaluator.inferType("3.14"));
-        System.out.println("   true has type: " + evaluator.inferType("true"));
-        System.out.println("   2 + 3 has type: " + evaluator.inferType("2 + 3"));
-        System.out.println("   2.5 + 1.5 has type: " + evaluator.inferType("2.5 + 1.5"));
-        System.out.println("   BernoulliDistribution(0.5) has type: " + evaluator.inferType("Bernoulli(0.5)"));
-
-        // 6. Persistent variables
+        // 5. Persistent variables
         System.out.println("\n6. Persistent Variables:");
         evaluator.setVariable("a", 100.0);
         evaluator.setVariable("b", 50.0);
@@ -87,7 +78,7 @@ public class StoexEvaluatorShowcaseTest {
         System.out.println("   a + b = " + evaluator.evaluate("a + b"));
         System.out.println("   a / b = " + evaluator.evaluate("a / b"));
 
-        // 7. Practical scenarios
+        // 6. Practical scenarios
         System.out.println("\n7. Practical Application - Performance Monitoring:");
         Map<String, Object> perfVars = new HashMap<>();
         perfVars.put("cpuUsage", 0.75);

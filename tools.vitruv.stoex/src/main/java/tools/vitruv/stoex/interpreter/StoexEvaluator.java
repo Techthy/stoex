@@ -14,16 +14,14 @@ import com.google.inject.Injector;
 
 import tools.vitruv.stoex.StoexStandaloneSetup;
 import tools.vitruv.stoex.interpreter.visitors.ExpressionEvaluationVisitor;
-import tools.vitruv.stoex.interpreter.visitors.TypeInferenceVisitor;
 import tools.vitruv.stoex.stoex.Expression;
 
 /**
  * High-level integration class for evaluating Stoex expressions.
- * Combines parsing, type inference, and evaluation in a simple API.
+ * Combines parsing and evaluation in a simple API.
  */
 public class StoexEvaluator {
 
-    private final TypeInferenceVisitor typeInference;
     private final ExpressionEvaluationVisitor evaluator;
     private final ResourceSet resourceSet;
     private final ISerializer serializer;
@@ -36,7 +34,6 @@ public class StoexEvaluator {
         this.serializer = injector.getInstance(ISerializer.class);
 
         // Initialize visitors
-        this.typeInference = new TypeInferenceVisitor();
         this.evaluator = new ExpressionEvaluationVisitor();
     }
 
@@ -58,20 +55,9 @@ public class StoexEvaluator {
             // 2. Set variables in the evaluator and type context
             for (Map.Entry<String, Object> var : variables.entrySet()) {
                 evaluator.setVariable(var.getKey(), var.getValue());
-                // Set the variable type in the type inference visitor
-                TypeEnum varType = inferTypeFromValue(var.getValue());
-                typeInference.setVariableType(var.getKey(), varType);
             }
 
-            // 3. Try type inference (will work now with variable context)
-            try {
-                typeInference.doSwitch(expr);
-            } catch (Exception e) {
-                // If type inference fails, we can still proceed with evaluation
-                System.err.println("Type inference warning: " + e.getMessage());
-            }
-
-            // 4. Evaluate the expression
+            // 3. Evaluate the expression
             Object result = evaluator.doSwitch(expr);
 
             return result;
@@ -91,26 +77,10 @@ public class StoexEvaluator {
     }
 
     /**
-     * Infer the type of an expression without evaluating it.
-     * Note: This may fail for expressions with undefined variables.
-     */
-    public TypeEnum inferType(String expressionString) {
-        try {
-            Expression expr = parseExpression(expressionString);
-            return typeInference.doSwitch(expr);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to infer type for expression: " + expressionString, e);
-        }
-    }
-
-    /**
      * Set a variable that will be available for all future evaluations.
      */
     public void setVariable(String name, Object value) {
         evaluator.setVariable(name, value);
-        // Also update the type inference context
-        TypeEnum varType = inferTypeFromValue(value);
-        typeInference.setVariableType(name, varType);
     }
 
     /**
@@ -118,23 +88,6 @@ public class StoexEvaluator {
      */
     public Object getVariable(String name) {
         return evaluator.getVariable(name);
-    }
-
-    /**
-     * Helper method to infer type from runtime value.
-     */
-    private TypeEnum inferTypeFromValue(Object value) {
-        if (value instanceof Integer) {
-            return TypeEnum.INT;
-        } else if (value instanceof Double || value instanceof Float) {
-            return TypeEnum.DOUBLE;
-        } else if (value instanceof Boolean) {
-            return TypeEnum.BOOL;
-        } else if (value instanceof String) {
-            return TypeEnum.STRING;
-        } else {
-            return TypeEnum.DOUBLE; // Default fallback
-        }
     }
 
     /**

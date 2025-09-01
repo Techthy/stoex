@@ -104,17 +104,6 @@ class StoexEvaluatorTest {
     }
 
     @Test
-    @DisplayName("Should infer types correctly")
-    void testTypeInference() {
-        assertEquals(TypeEnum.INT, evaluator.inferType("42"));
-        assertEquals(TypeEnum.DOUBLE, evaluator.inferType("3.14"));
-        assertEquals(TypeEnum.BOOL, evaluator.inferType("true"));
-        assertEquals(TypeEnum.STRING, evaluator.inferType("\"hello\""));
-        assertEquals(TypeEnum.DOUBLE, evaluator.inferType("2 + 3.0"));
-        assertEquals(TypeEnum.BOOL, evaluator.inferType("5 > 3"));
-    }
-
-    @Test
     @DisplayName("Should handle complex expressions")
     void testComplexExpressions() {
         evaluator.setVariable("x", 2);
@@ -166,16 +155,6 @@ class StoexEvaluatorTest {
         assertThrows(RuntimeException.class, () -> {
             evaluator.evaluate("unknownFunction(5)");
         });
-    }
-
-    @Test
-    @DisplayName("Should handle variables in type inference")
-    void testTypeInferenceWithVariables() {
-        evaluator.setVariable("x", 42);
-
-        // Type inference should work even with variables
-        assertEquals(TypeEnum.DOUBLE, evaluator.inferType("x + 3.14"));
-        assertEquals(TypeEnum.BOOL, evaluator.inferType("x > 0"));
     }
 
     @Test

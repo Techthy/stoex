@@ -52,6 +52,11 @@ public class AddOperation {
 		return monteCarloBoxedPDF(left, right);
 	}
 
+	public BoxedPDF evaluate(BoxedPDF left, BoxedPDF right) {
+		MonteCarloContinuous monteCarlo = new MonteCarloContinuous();
+		return monteCarlo.monteCarloEstimation(left, right);
+	}
+
 	// Monte Carlo Estimation for all ProbabilityDensityFunction types
 	public BoxedPDF monteCarloBoxedPDF(ProbabilityDensityFunction left, ProbabilityDensityFunction right) {
 		SampleHelper sampleHelper = new SampleHelper();

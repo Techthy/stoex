@@ -115,6 +115,7 @@ ProbabilityFunction:
 ProbabilityDensityFunction:
     BoxedPDF | 
     BoxedCDF |
+    SampledDistribution |
     NormalDistribution |
     ExponentialDistribution |
     GammaDistribution |
@@ -125,6 +126,9 @@ BoxedPDF:
 
 BoxedCDF:
     'DoubleCDF' '[' (samples+=RealCdfSample)+ ']';
+
+SampledDistribution:
+    'Sampled' '[' (values+=DOUBLE (',' values+=DOUBLE)*)? ']';
 
 NormalDistribution:
     'Normal' '(' mu=DOUBLE ',' sigma=DOUBLE ')';

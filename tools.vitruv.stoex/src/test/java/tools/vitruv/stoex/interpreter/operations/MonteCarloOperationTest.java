@@ -86,12 +86,10 @@ public class MonteCarloOperationTest {
         // Act
         double[] result = operation.evaluateTermOperation(dist1, dist2, 100000, TermOperations.SUB);
 
-        // Extract mean and ssddev off result
-        double mean = Arrays.stream(result).average().orElse(0);
-        double ssddev = Math.sqrt(Arrays.stream(result).map(x -> Math.pow(x - mean, 2)).average().orElse(0));
-
         // Assert
         // N(200, 3) - N(10, 4) = N(190, 5)
+        double mean = Arrays.stream(result).average().orElse(0);
+        double ssddev = Math.sqrt(Arrays.stream(result).map(x -> Math.pow(x - mean, 2)).average().orElse(0));
         assertEquals(mean, 190.0, 0.5);
         assertEquals(ssddev, 5.0, 0.25);
 

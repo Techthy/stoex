@@ -4,12 +4,16 @@ import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
+import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
+import tools.vitruv.stoex.stoex.TermOperations;
 
 /**
  * Implements the operation "addition" for different kinds of operands.
- * 
- * @author Hammann
+ *
+ * closed form solutions exist for NormalDistribution, ExponentialDistribution,
+ * and GammaDistribution
+ *
  */
 public class AddOperation {
 
@@ -20,67 +24,6 @@ public class AddOperation {
 	public double evaluate(double left, double right) {
 		return left + right;
 	}
-
-	// Fallback that handles String and Boolean as well as the mixture of types
-	public Object evaluate(Object left, Object right) {
-		if (left instanceof NormalDistribution leftNorm && right instanceof NormalDistribution rightNorm) {
-			return evaluate(leftNorm, rightNorm);
-		} else if (left instanceof ExponentialDistribution leftExp
-				&& right instanceof ExponentialDistribution rightExp) {
-			return evaluate(leftExp, rightExp);
-		} else if (left instanceof GammaDistribution leftGamma && right instanceof GammaDistribution rightGamma) {
-			return evaluate(leftGamma, rightGamma);
-		} else if (left instanceof ProbabilityDensityFunction leftPDF
-				&& right instanceof ProbabilityDensityFunction rightPDF) {
-			return evaluate(leftPDF, rightPDF);
-		}
-
-		System.out.println("Left type: " + (left == null ? "null" : left.getClass().getName()));
-		System.out.println("Right type: " + (right == null ? "null" : right.getClass().getName()));
-
-		double leftVal = toDouble(left);
-		double rightVal = toDouble(right);
-		double result = leftVal + rightVal;
-
-		return result;
-	}
-
-	// General Case for all continuous distributions
-	// public BoxedPDF evaluate(ProbabilityDensityFunction left,
-	// ProbabilityDensityFunction right) {
-	// return monteCarloBoxedPDF(left, right);
-	// }
-
-	// public ProbabilityDensityFunction evaluate(BoxedPDF left, BoxedPDF right) {
-	// MonteCarloContinuous monteCarlo = new MonteCarloContinuous();
-	// return monteCarlo.monteCarloEstimation(left, right);
-	// }
-
-	// Monte Carlo Estimation for all ProbabilityDensityFunction types
-	// public BoxedPDF monteCarloBoxedPDF(ProbabilityDensityFunction left,
-	// ProbabilityDensityFunction right) {
-	// SampleHelper sampleHelper = new SampleHelper();
-
-	// java.util.List<ContinuousSample> leftSamples = sampleHelper.getSamples(left);
-	// java.util.List<ContinuousSample> rightSamples =
-	// sampleHelper.getSamples(right);
-
-	// BoxedPDF result = StoexFactory.eINSTANCE.createBoxedPDF();
-	// for (ContinuousSample leftSample : leftSamples) {
-	// for (ContinuousSample rightSample : rightSamples) {
-	// double leftValue = leftSample.getValue();
-	// double rightValue = rightSample.getValue();
-	// double sumValue = leftValue + rightValue;
-	// double sumProb = leftSample.getProbability() * rightSample.getProbability();
-
-	// ContinuousSample sample = StoexFactory.eINSTANCE.createContinuousSample();
-	// sample.setValue(sumValue);
-	// sample.setProbability(sumProb);
-	// result.getSamples().add(sample);
-	// }
-	// }
-	// return result;
-	// }
 
 	public NormalDistribution evaluate(NormalDistribution left, NormalDistribution right) {
 		NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
@@ -93,13 +36,25 @@ public class AddOperation {
 	public ProbabilityDensityFunction evaluate(ExponentialDistribution left, ExponentialDistribution right) {
 		// Closed Form Solution exists only for same lambda
 		if (left.getLambda() != right.getLambda()) {
-			// TODO
-			// throw new OperationNotSupportedException("Not Implemented");
+			SampleHelper helper = new SampleHelper();
+			return addDistributions(helper.getSamples(left), helper.getSamples(right));
 		}
 
 		GammaDistribution result = StoexFactory.eINSTANCE.createGammaDistribution();
 		result.setAlpha(2);
 		result.setTheta(1 / left.getLambda());
+		return result;
+	}
+
+	public SampledDistribution addDistributions(double[] samplesLeft, double[] samplesRight) {
+
+		MonteCarloOperation op = new MonteCarloOperation();
+		double[] combinedSamples = op.evaluateTermOperation(samplesLeft, samplesRight, 10000, TermOperations.ADD);
+
+		SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
+		for (double d : combinedSamples) {
+			result.getValues().add(d);
+		}
 		return result;
 	}
 
@@ -113,6 +68,27 @@ public class AddOperation {
 		result.setAlpha(left.getAlpha() + right.getAlpha());
 		result.setTheta(left.getTheta());
 		return result;
+	}
+
+	// Fallback that handles String and Boolean as well as the mixture of types
+	public Object evaluate(Object left, Object right) {
+
+		if (left instanceof NormalDistribution leftNorm && right instanceof NormalDistribution rightNorm) {
+			return evaluate(leftNorm, rightNorm);
+		} else if (left instanceof ExponentialDistribution leftExp
+				&& right instanceof ExponentialDistribution rightExp) {
+			return evaluate(leftExp, rightExp);
+		} else if (left instanceof GammaDistribution leftGamma && right instanceof GammaDistribution rightGamma) {
+			return evaluate(leftGamma, rightGamma);
+		} else if (left instanceof ProbabilityDensityFunction leftPDF
+				&& right instanceof ProbabilityDensityFunction rightPDF) {
+			throw new IllegalArgumentException("Cannot add two ProbabilityDensityFunctions");
+			// return evaluate(leftPDF, rightPDF);
+		}
+
+		double leftVal = toDouble(left);
+		double rightVal = toDouble(right);
+		return evaluate(leftVal, rightVal);
 	}
 
 	private double toDouble(Object value) {

@@ -13,10 +13,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.google.inject.Inject;
 
-import tools.vitruv.stoex.stoex.BoxedPDF;
+import tools.vitruv.stoex.interpreter.operations.MonteCarloOperation;
 import tools.vitruv.stoex.stoex.Expression;
 import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.NormalDistribution;
+import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.tests.StoexInjectorProvider;
 
 @ExtendWith(InjectionExtension.class)
@@ -188,38 +189,33 @@ class ExpressionEvaluationVisitorTest {
     @Test
     @DisplayName("Should evaluate addition of two exponential distributions with same lambda")
     void testAddExponentialDistributionsSameLambda() throws Exception {
+        // Arrange
         Expression expr = parseHelper.parse("Exponential(1.0) + Exponential(1.0)");
+
+        // Act
         Object result = evaluator.doSwitch(expr);
 
-        System.out.println(result);
-
+        // Assert
         assertTrue(result instanceof GammaDistribution);
         GammaDistribution resultDist = (GammaDistribution) result;
         assertEquals(2, resultDist.getAlpha(), 1e-10);
         assertEquals(1.0, resultDist.getTheta(), 1e-10);
     }
 
-    // @Test
-    // @DisplayName("Should evaluate addition of two exponential distributions with
-    // different lambda")
-    // void testAddExponentialDistributionsDifferentLambda() throws Exception {
-    // Expression expr = parseHelper.parse("Exponential(1.0) + Exponential(2.0)");
-    // Object result = evaluator.doSwitch(expr);
+    @Test
+    @DisplayName("Should evaluate addition of two exponential distributions with different lambda")
+    void testAddExponentialDistributionsDifferentLambda() throws Exception {
+        Expression expr = parseHelper.parse("Exponential(1.0) + Exponential(2.0)");
+        Object result = evaluator.doSwitch(expr);
 
-    // System.out.println(result);
-
-    // assertTrue(result instanceof BoxedPDF);
-    // }
-
-    // @Test
-    // @DisplayName("Should evaluate addition of Boxed PDF and Normal Distribution")
-    // void testAddBoxedPDFAndNormalDistribution() throws Exception {
-    // Expression expr = parseHelper
-    // .parse("DoublePDF[(1.0;0.1) (2.0;0.2) (3.0;0.3) (4.0;0.25) (5.0;0.15)] +
-    // Normal(0.0, 1.0)");
-    // Object result = evaluator.doSwitch(expr);
-
-    // assertTrue(result instanceof BoxedPDF);
-    // }
+        assertTrue(result instanceof SampledDistribution);
+        SampledDistribution sampledResult = (SampledDistribution) result;
+        MonteCarloOperation operation = new MonteCarloOperation();
+        double[] valuesArray = sampledResult.getValues().stream().mapToDouble(Double::doubleValue).toArray();
+        double[][] histogram = operation.histogram(valuesArray, 10);
+        for (int i = 0; i < histogram[0].length - 1; i++) {
+            assertTrue(histogram[0][i] + 10 >= histogram[0][i + 1]);
+        }
+    }
 
 }

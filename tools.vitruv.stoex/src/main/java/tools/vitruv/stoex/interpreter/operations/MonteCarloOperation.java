@@ -8,7 +8,7 @@ import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
 import tools.vitruv.stoex.stoex.TermOperations;
 
-public class MonteCarloSample {
+public class MonteCarloOperation {
 
     private final Random random = new Random();
 
@@ -17,7 +17,7 @@ public class MonteCarloSample {
         // Perform Monte Carlo addition of two sampled distributions
         double[] samples1 = dist1.getValues().stream().mapToDouble(Double::doubleValue).toArray();
         double[] samples2 = dist2.getValues().stream().mapToDouble(Double::doubleValue).toArray();
-        double[] summedSamples = addDistributions(samples1, samples2, 100000);
+        double[] summedSamples = evaluateTermOperation(samples1, samples2, 100000, TermOperations.ADD);
         SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
         result.getValues().addAll(Arrays.stream(summedSamples).boxed().toList());
         return result;
@@ -62,7 +62,7 @@ public class MonteCarloSample {
      * @param numBins Number of bins in the histogram
      * @return Histogram counts and bin edges
      */
-    public static double[][] histogram(double[] samples, int numBins) {
+    public double[][] histogram(double[] samples, int numBins) {
         double min = Arrays.stream(samples).min().orElse(0);
         double max = Arrays.stream(samples).max().orElse(1);
         double binWidth = (max - min) / numBins;
@@ -83,7 +83,7 @@ public class MonteCarloSample {
         return new double[][] { counts, binEdges };
     }
 
-    private void printHistogram(double[] results, int bins) {
+    public void printHistogram(double[] results, int bins) {
         double min = DoubleStream.of(results).min().orElse(0.0);
         double max = DoubleStream.of(results).max().orElse(0.0);
         double binWidth = (max - min) / bins;
@@ -97,13 +97,15 @@ public class MonteCarloSample {
 
         System.out.println("\nHistogramm of the Results:");
         int maxCount = Arrays.stream(histogram).max().orElse(1);
+        int resultCount = results.length;
 
         for (int i = 0; i < bins; i++) {
             double binStart = min + i * binWidth;
             double binEnd = binStart + binWidth;
             int barLength = (histogram[i] * 50) / maxCount; // Normiert auf 50 Zeichen
+            double probability = Math.round((histogram[i] / (double) resultCount) * 10000.0) / 100.0;
 
-            System.out.printf("[%6.2f, %6.2f) |", binStart, binEnd);
+            System.out.printf("[%6.2f, %6.2f), %6.2f %%  |", binStart, binEnd, probability);
             for (int j = 0; j < barLength; j++) {
                 System.out.print("█");
             }
@@ -125,13 +127,13 @@ public class MonteCarloSample {
             dist2[i] = 3.0 + (5.0 - 3.0) * i / (n2 - 1); // Uniform from 3 to 5
         }
 
-        MonteCarloSample adder = new MonteCarloSample();
-        double[] sumSamples = adder.addDistributions(dist1, dist2, 100000);
+        MonteCarloOperation adder = new MonteCarloOperation();
+        // double[] sumSamples = adder.addDistributions(dist1, dist2, 100000);
 
-        double[][] hist = histogram(sumSamples, 10);
+        // double[][] hist = histogram(sumSamples, 10);
 
-        System.out.println("Counts: " + Arrays.toString(hist[0]));
-        System.out.println("Bin edges: " + Arrays.toString(hist[1]));
-        adder.printHistogram(sumSamples, 11);
+        // System.out.println("Counts: " + Arrays.toString(hist[0]));
+        // System.out.println("Bin edges: " + Arrays.toString(hist[1]));
+        // adder.printHistogram(sumSamples, 11);
     }
 }

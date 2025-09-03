@@ -113,34 +113,26 @@ ProbabilityFunction:
 // CONTINUOUS DISTRIBUTIONS
 
 ProbabilityDensityFunction:
-    BoxedPDF | 
-    BoxedCDF |
     SampledDistribution |
     NormalDistribution |
     ExponentialDistribution |
     GammaDistribution |
     LognormalDistribution;
 
-BoxedPDF:
-    'DoublePDF' '[' (samples+=RealPdfSample)+ ']';
-
-BoxedCDF:
-    'DoubleCDF' '[' (samples+=RealCdfSample)+ ']';
-
 SampledDistribution:
     'Sampled' '[' (values+=DOUBLE (',' values+=DOUBLE)*)? ']';
 
 NormalDistribution:
-    'Normal' '(' mu=DOUBLE ',' sigma=DOUBLE ')';
+    'Normal' '(' mu=NUMBER ',' sigma=NUMBER ')';
 
 ExponentialDistribution:
-    'Exponential' '(' lambda=DOUBLE ')';
+    'Exponential' '(' lambda=NUMBER ')';
 
 GammaDistribution:
-    'Gamma' '(' alpha=DOUBLE ',' theta=DOUBLE ')';
+    'Gamma' '(' alpha=NUMBER ',' theta=NUMBER ')';
 
 LognormalDistribution:
-    'Lognormal' '(' mu=DOUBLE ',' sigma=DOUBLE ')';
+    'Lognormal' '(' mu=NUMBER ',' sigma=NUMBER ')';
 
 // DISCRETE DISTRIBUTIONS
 
@@ -174,12 +166,6 @@ NumericIntSample returns IntSample:
     '(' value=SIGNED_INT ';' probability=NUMBER ')';
 
 NumericRealSample returns DoubleSample:
-    '(' value=SIGNED_NUMBER ';' probability=NUMBER ')';
-
-RealPdfSample returns ContinuousSample:
-    '(' value=SIGNED_NUMBER ';' probability=NUMBER ')';
-
-RealCdfSample returns ContinuousSample:
     '(' value=SIGNED_NUMBER ';' probability=NUMBER ')';
 
 StringSample returns StringSample:

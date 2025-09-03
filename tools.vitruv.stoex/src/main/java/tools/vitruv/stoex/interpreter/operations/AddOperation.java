@@ -1,7 +1,5 @@
 package tools.vitruv.stoex.interpreter.operations;
 
-import tools.vitruv.stoex.stoex.BoxedPDF;
-import tools.vitruv.stoex.stoex.ContinuousSample;
 import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.NormalDistribution;
@@ -48,38 +46,41 @@ public class AddOperation {
 	}
 
 	// General Case for all continuous distributions
-	public BoxedPDF evaluate(ProbabilityDensityFunction left, ProbabilityDensityFunction right) {
-		return monteCarloBoxedPDF(left, right);
-	}
+	// public BoxedPDF evaluate(ProbabilityDensityFunction left,
+	// ProbabilityDensityFunction right) {
+	// return monteCarloBoxedPDF(left, right);
+	// }
 
-	public BoxedPDF evaluate(BoxedPDF left, BoxedPDF right) {
-		MonteCarloContinuous monteCarlo = new MonteCarloContinuous();
-		return monteCarlo.monteCarloEstimation(left, right);
-	}
+	// public ProbabilityDensityFunction evaluate(BoxedPDF left, BoxedPDF right) {
+	// MonteCarloContinuous monteCarlo = new MonteCarloContinuous();
+	// return monteCarlo.monteCarloEstimation(left, right);
+	// }
 
 	// Monte Carlo Estimation for all ProbabilityDensityFunction types
-	public BoxedPDF monteCarloBoxedPDF(ProbabilityDensityFunction left, ProbabilityDensityFunction right) {
-		SampleHelper sampleHelper = new SampleHelper();
+	// public BoxedPDF monteCarloBoxedPDF(ProbabilityDensityFunction left,
+	// ProbabilityDensityFunction right) {
+	// SampleHelper sampleHelper = new SampleHelper();
 
-		java.util.List<ContinuousSample> leftSamples = sampleHelper.getSamples(left);
-		java.util.List<ContinuousSample> rightSamples = sampleHelper.getSamples(right);
+	// java.util.List<ContinuousSample> leftSamples = sampleHelper.getSamples(left);
+	// java.util.List<ContinuousSample> rightSamples =
+	// sampleHelper.getSamples(right);
 
-		BoxedPDF result = StoexFactory.eINSTANCE.createBoxedPDF();
-		for (ContinuousSample leftSample : leftSamples) {
-			for (ContinuousSample rightSample : rightSamples) {
-				double leftValue = leftSample.getValue();
-				double rightValue = rightSample.getValue();
-				double sumValue = leftValue + rightValue;
-				double sumProb = leftSample.getProbability() * rightSample.getProbability();
+	// BoxedPDF result = StoexFactory.eINSTANCE.createBoxedPDF();
+	// for (ContinuousSample leftSample : leftSamples) {
+	// for (ContinuousSample rightSample : rightSamples) {
+	// double leftValue = leftSample.getValue();
+	// double rightValue = rightSample.getValue();
+	// double sumValue = leftValue + rightValue;
+	// double sumProb = leftSample.getProbability() * rightSample.getProbability();
 
-				ContinuousSample sample = StoexFactory.eINSTANCE.createContinuousSample();
-				sample.setValue(sumValue);
-				sample.setProbability(sumProb);
-				result.getSamples().add(sample);
-			}
-		}
-		return result;
-	}
+	// ContinuousSample sample = StoexFactory.eINSTANCE.createContinuousSample();
+	// sample.setValue(sumValue);
+	// sample.setProbability(sumProb);
+	// result.getSamples().add(sample);
+	// }
+	// }
+	// return result;
+	// }
 
 	public NormalDistribution evaluate(NormalDistribution left, NormalDistribution right) {
 		NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
@@ -92,7 +93,8 @@ public class AddOperation {
 	public ProbabilityDensityFunction evaluate(ExponentialDistribution left, ExponentialDistribution right) {
 		// Closed Form Solution exists only for same lambda
 		if (left.getLambda() != right.getLambda()) {
-			return monteCarloBoxedPDF(left, right);
+			// TODO
+			// throw new OperationNotSupportedException("Not Implemented");
 		}
 
 		GammaDistribution result = StoexFactory.eINSTANCE.createGammaDistribution();
@@ -104,7 +106,7 @@ public class AddOperation {
 	public ProbabilityDensityFunction evaluate(GammaDistribution left, GammaDistribution right) {
 		// Closed Form Solution exists only for same theta
 		if (left.getTheta() != right.getTheta()) {
-			return monteCarloBoxedPDF(left, right);
+			// return monteCarloBoxedPDF(left, right);
 		}
 
 		GammaDistribution result = StoexFactory.eINSTANCE.createGammaDistribution();

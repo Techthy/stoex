@@ -199,25 +199,27 @@ class ExpressionEvaluationVisitorTest {
         assertEquals(1.0, resultDist.getTheta(), 1e-10);
     }
 
-    @Test
-    @DisplayName("Should evaluate addition of two exponential distributions with different lambda")
-    void testAddExponentialDistributionsDifferentLambda() throws Exception {
-        Expression expr = parseHelper.parse("Exponential(1.0) + Exponential(2.0)");
-        Object result = evaluator.doSwitch(expr);
+    // @Test
+    // @DisplayName("Should evaluate addition of two exponential distributions with
+    // different lambda")
+    // void testAddExponentialDistributionsDifferentLambda() throws Exception {
+    // Expression expr = parseHelper.parse("Exponential(1.0) + Exponential(2.0)");
+    // Object result = evaluator.doSwitch(expr);
 
-        System.out.println(result);
+    // System.out.println(result);
 
-        assertTrue(result instanceof BoxedPDF);
-    }
+    // assertTrue(result instanceof BoxedPDF);
+    // }
 
-    @Test
-    @DisplayName("Should evaluate addition of Boxed PDF and Normal Distribution")
-    void testAddBoxedPDFAndNormalDistribution() throws Exception {
-        Expression expr = parseHelper
-                .parse("DoublePDF[(1.0;0.1) (2.0;0.2) (3.0;0.3) (4.0;0.25) (5.0;0.15)] + Normal(0.0, 1.0)");
-        Object result = evaluator.doSwitch(expr);
+    // @Test
+    // @DisplayName("Should evaluate addition of Boxed PDF and Normal Distribution")
+    // void testAddBoxedPDFAndNormalDistribution() throws Exception {
+    // Expression expr = parseHelper
+    // .parse("DoublePDF[(1.0;0.1) (2.0;0.2) (3.0;0.3) (4.0;0.25) (5.0;0.15)] +
+    // Normal(0.0, 1.0)");
+    // Object result = evaluator.doSwitch(expr);
 
-        assertTrue(result instanceof BoxedPDF);
-    }
+    // assertTrue(result instanceof BoxedPDF);
+    // }
 
 }

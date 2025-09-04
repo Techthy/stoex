@@ -218,4 +218,42 @@ class ExpressionEvaluationVisitorTest {
         }
     }
 
+    @Test
+    @DisplayName("Should evaluate addition of two gamma distributions with same theta")
+    void testAddGammaDistributionsSameTheta() throws Exception {
+        Expression expr = parseHelper.parse("Gamma(2.0, 1.0) + Gamma(3.0, 1.0)");
+        Object result = evaluator.doSwitch(expr);
+        assertTrue(result instanceof GammaDistribution);
+        GammaDistribution resultDist = (GammaDistribution) result;
+        assertEquals(5.0, resultDist.getAlpha(), 1e-10);
+        assertEquals(1.0, resultDist.getTheta(), 1e-10);
+    }
+
+    @Test
+    @DisplayName("Should evaluate subtraction of two normal distributions")
+    void testSubNormalDistributions() throws Exception {
+        Expression expr = parseHelper.parse("Normal(5.0, 2.0) - Normal(3.0, 1.0)");
+        Object result = evaluator.doSwitch(expr);
+
+        assertTrue(result instanceof NormalDistribution);
+        NormalDistribution resultDist = (NormalDistribution) result;
+        assertEquals(2.0, resultDist.getMu(), 1e-10);
+        assertEquals(Math.sqrt(5), resultDist.getSigma(), 1e-10);
+    }
+
+    @Test
+    @DisplayName("Should evaluate subtraction of two exponential distributions with different lambda")
+    void testSubExponentialDistributionsDifferentLambda() throws Exception {
+        Expression expr = parseHelper.parse("Exponential(1.0) - Exponential(2.0)");
+        Object result = evaluator.doSwitch(expr);
+        assertTrue(result instanceof SampledDistribution);
+        SampledDistribution sampledResult = (SampledDistribution) result;
+        MonteCarloOperation operation = new MonteCarloOperation();
+        double[] valuesArray = sampledResult.getValues().stream().mapToDouble(Double::doubleValue).toArray();
+        double[][] histogram = operation.histogram(valuesArray, 10);
+        for (int i = 0; i < histogram[0].length - 1; i++) {
+            assertTrue(histogram[0][i] + 15 >= histogram[0][i + 1]);
+        }
+    }
+
 }

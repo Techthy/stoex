@@ -6,6 +6,7 @@ import java.util.Random;
 
 import tools.vitruv.stoex.interpreter.StoexEvaluator;
 import tools.vitruv.stoex.interpreter.operations.AddOperation;
+import tools.vitruv.stoex.interpreter.operations.SubOperation;
 import tools.vitruv.stoex.stoex.AbstractNamedReference;
 import tools.vitruv.stoex.stoex.BernoulliDistribution;
 import tools.vitruv.stoex.stoex.BinomialDistribution;
@@ -343,8 +344,8 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
     }
 
     private Object evaluateSubtract(Object left, Object right) {
-        // Simple numeric subtraction for now
-        return toDouble(left) - toDouble(right);
+        SubOperation subOp = new SubOperation();
+        return subOp.evaluate(left, right);
     }
 
     private Object evaluateProductOperation(Object left, Object right, ProductOperations operation) {

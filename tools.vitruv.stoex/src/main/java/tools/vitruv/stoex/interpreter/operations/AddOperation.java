@@ -61,7 +61,8 @@ public class AddOperation {
 	public ProbabilityDensityFunction evaluate(GammaDistribution left, GammaDistribution right) {
 		// Closed Form Solution exists only for same theta
 		if (left.getTheta() != right.getTheta()) {
-			// return monteCarloBoxedPDF(left, right);
+			SampleHelper helper = new SampleHelper();
+			return addDistributions(helper.getSamples(left), helper.getSamples(right));
 		}
 
 		GammaDistribution result = StoexFactory.eINSTANCE.createGammaDistribution();
@@ -82,8 +83,8 @@ public class AddOperation {
 			return evaluate(leftGamma, rightGamma);
 		} else if (left instanceof ProbabilityDensityFunction leftPDF
 				&& right instanceof ProbabilityDensityFunction rightPDF) {
-			throw new IllegalArgumentException("Cannot add two ProbabilityDensityFunctions");
-			// return evaluate(leftPDF, rightPDF);
+			SampleHelper helper = new SampleHelper();
+			return addDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
 		}
 
 		double leftVal = toDouble(left);

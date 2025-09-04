@@ -31,6 +31,7 @@ public class AddOperation {
 
 	public Object evaluate(Object left, Object right) {
 
+		// CONTINUOUS
 		if (left instanceof NormalDistribution leftNorm && right instanceof NormalDistribution rightNorm) {
 			return evaluate(leftNorm, rightNorm);
 		} else if (left instanceof ExponentialDistribution leftExp
@@ -38,21 +39,25 @@ public class AddOperation {
 			return evaluate(leftExp, rightExp);
 		} else if (left instanceof GammaDistribution leftGamma && right instanceof GammaDistribution rightGamma) {
 			return evaluate(leftGamma, rightGamma);
+		} else if (left instanceof ProbabilityDensityFunction leftPDF
+				&& right instanceof ProbabilityDensityFunction rightPDF) {
+			SampleHelper helper = new SampleHelper();
+			return addDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
+			// DISCRETE
 		} else if (left instanceof PoissonDistribution leftPoisson
 				&& right instanceof PoissonDistribution rightPoisson) {
 			return evaluate(leftPoisson, rightPoisson);
 		} else if (left instanceof BernoulliDistribution leftBernoulli
 				&& right instanceof BernoulliDistribution rightBernoulli) {
 			return evaluate(leftBernoulli, rightBernoulli);
-		} else if (left instanceof IntProbabilityMassFunction leftIntPMF
-				&& right instanceof IntProbabilityMassFunction rightIntPMF) {
-			return evaluate(leftIntPMF, rightIntPMF);
-		} else if (left instanceof ProbabilityDensityFunction leftPDF
-				&& right instanceof ProbabilityDensityFunction rightPDF) {
-			SampleHelper helper = new SampleHelper();
-			return addDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
+		} else if (left instanceof BinomialDistribution leftBinomial
+				&& right instanceof BinomialDistribution rightBinomial) {
+			return evaluate(leftBinomial, rightBinomial);
+		} else if (left instanceof ProbabilityMassFunction leftPMF
+				&& right instanceof ProbabilityMassFunction rightPMF) {
+			DiscreteConvolution conv = new DiscreteConvolution();
+			return addDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
 		}
-
 		double leftVal = toDouble(left);
 		double rightVal = toDouble(right);
 		return evaluate(leftVal, rightVal);
@@ -120,7 +125,7 @@ public class AddOperation {
 		// Closed Form Solution exists only for same p
 		if (left.getP() != right.getP()) {
 			DiscreteConvolution conv = new DiscreteConvolution();
-			return conv.convolve(left, right, ProbabilityFunctionOperations.ADD);
+			return conv.convolve(conv.convertToPMF(left), conv.convertToPMF(right), ProbabilityFunctionOperations.ADD);
 		}
 		BinomialDistribution result = StoexFactory.eINSTANCE.createBinomialDistribution();
 		result.setN(2);
@@ -128,7 +133,21 @@ public class AddOperation {
 		return result;
 	}
 
-	public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction left, IntProbabilityMassFunction right) {
+	public ProbabilityMassFunction evaluate(BinomialDistribution left,
+			BinomialDistribution right) {
+		// Closed Form Solution exists only for same p
+		if (left.getP() != right.getP()) {
+			DiscreteConvolution conv = new DiscreteConvolution();
+			return conv.convolve(conv.convertToPMF(left), conv.convertToPMF(right), ProbabilityFunctionOperations.ADD);
+		}
+		BinomialDistribution result = StoexFactory.eINSTANCE.createBinomialDistribution();
+		result.setN(left.getN() + right.getN());
+		result.setP(left.getP());
+		return result;
+	}
+
+	public IntProbabilityMassFunction addDistributions(IntProbabilityMassFunction left,
+			IntProbabilityMassFunction right) {
 		DiscreteConvolution conv = new DiscreteConvolution();
 		return conv.convolve(left, right, ProbabilityFunctionOperations.ADD);
 	}

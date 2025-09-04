@@ -1,16 +1,20 @@
 package tools.vitruv.stoex.interpreter.operations;
 
 import tools.vitruv.stoex.stoex.BernoulliDistribution;
+import tools.vitruv.stoex.stoex.BinomialDistribution;
+import tools.vitruv.stoex.stoex.DiscreteUniformDistribution;
 import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.IntSample;
+import tools.vitruv.stoex.stoex.PoissonDistribution;
+import tools.vitruv.stoex.stoex.ProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.StoexFactory;
 
 public class DiscreteConvolution {
 
-    public IntProbabilityMassFunction convolve(IntProbabilityMassFunction left, IntProbabilityMassFunction right,
+    public IntProbabilityMassFunction convolve(IntProbabilityMassFunction left,
+            IntProbabilityMassFunction right,
             ProbabilityFunctionOperations operation) {
         IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
-
         for (IntSample sampleLeft : left.getSamples()) {
             for (IntSample sampleRight : right.getSamples()) {
 
@@ -32,8 +36,101 @@ public class DiscreteConvolution {
                 }
             }
         }
-
         return result;
+    }
+
+    public IntProbabilityMassFunction convertToPMF(BernoulliDistribution distribution) {
+        IntProbabilityMassFunction pmf = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+        IntSample leftSuccess = StoexFactory.eINSTANCE.createIntSample();
+        leftSuccess.setValue(1);
+        leftSuccess.setProbability(distribution.getP());
+        IntSample leftFailure = StoexFactory.eINSTANCE.createIntSample();
+        leftFailure.setValue(0);
+        leftFailure.setProbability(1 - distribution.getP());
+        pmf.getSamples().add(leftSuccess);
+        pmf.getSamples().add(leftFailure);
+
+        return pmf;
+    }
+
+    public IntProbabilityMassFunction convertToPMF(BinomialDistribution distribution) {
+        IntProbabilityMassFunction pmf = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+        for (int k = 0; k <= distribution.getN(); k++) {
+            IntSample sample = StoexFactory.eINSTANCE.createIntSample();
+            sample.setValue(k);
+            sample.setProbability(binomialProbability(distribution.getN(), distribution.getP(), k));
+            pmf.getSamples().add(sample);
+        }
+        return pmf;
+    }
+
+    public IntProbabilityMassFunction convertToPMF(PoissonDistribution distribution) {
+        IntProbabilityMassFunction pmf = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+        double lambda = distribution.getLambda();
+        for (int k = 0; k <= 10 * lambda; k++) {
+            IntSample sample = StoexFactory.eINSTANCE.createIntSample();
+            sample.setValue(k);
+            sample.setProbability(poissonProbability(lambda, k));
+            pmf.getSamples().add(sample);
+        }
+        return pmf;
+    }
+
+    public IntProbabilityMassFunction convertToPMF(DiscreteUniformDistribution distribution) {
+        IntProbabilityMassFunction pmf = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+        int a = distribution.getA();
+        int b = distribution.getB();
+        double probability = 1.0 / (b - a + 1);
+        for (int k = a; k <= b; k++) {
+            IntSample sample = StoexFactory.eINSTANCE.createIntSample();
+            sample.setValue(k);
+            sample.setProbability(probability);
+            pmf.getSamples().add(sample);
+        }
+        return pmf;
+    }
+
+    public IntProbabilityMassFunction convertToPMF(ProbabilityMassFunction distribution) {
+        if (distribution instanceof IntProbabilityMassFunction) {
+            return (IntProbabilityMassFunction) distribution;
+        } else if (distribution instanceof BernoulliDistribution bernoulliDistribution) {
+            return convertToPMF(bernoulliDistribution);
+        } else if (distribution instanceof BinomialDistribution binomialDistribution) {
+            return convertToPMF(binomialDistribution);
+        } else if (distribution instanceof PoissonDistribution poissonDistribution) {
+            return convertToPMF(poissonDistribution);
+        } else if (distribution instanceof DiscreteUniformDistribution discreteUniformDistribution) {
+            return convertToPMF(discreteUniformDistribution);
+        } else {
+            throw new IllegalArgumentException(
+                    "Unsupported distribution type: " + distribution.getClass().getSimpleName());
+        }
+    }
+
+    private double poissonProbability(double lambda, int k) {
+        return (Math.pow(lambda, k) * Math.exp(-lambda)) / factorial(k);
+    }
+
+    private double binomialProbability(int n, double p, int k) {
+        double binomCoeff = factorial(n) / (factorial(k) * factorial(n - k));
+        return binomCoeff * Math.pow(p, k) * Math.pow(1 - p, n - k);
+    }
+
+    private double factorial(int num) {
+        if (num == 0 || num == 1) {
+            return 1;
+        }
+        double result = 1;
+        for (int i = 2; i <= num; i++) {
+            result *= i;
+        }
+        return result;
+    }
+
+    public void printHistogram(IntProbabilityMassFunction pmf) {
+        for (IntSample sample : pmf.getSamples()) {
+            System.out.println("Value: " + sample.getValue() + ", Probability: " + sample.getProbability());
+        }
     }
 
     private int evaluate(int leftValue, int rightValue, ProbabilityFunctionOperations operation) {
@@ -54,37 +151,6 @@ public class DiscreteConvolution {
                 return leftValue / rightValue;
             }
             default -> throw new IllegalArgumentException("Unsupported operation: " + operation);
-        }
-    }
-
-    public IntProbabilityMassFunction convolve(BernoulliDistribution left, BernoulliDistribution right,
-            ProbabilityFunctionOperations operation) {
-        IntProbabilityMassFunction leftPMF = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
-        IntSample leftSuccess = StoexFactory.eINSTANCE.createIntSample();
-        leftSuccess.setValue(1);
-        leftSuccess.setProbability(left.getP());
-        IntSample leftFailure = StoexFactory.eINSTANCE.createIntSample();
-        leftFailure.setValue(0);
-        leftFailure.setProbability(1 - left.getP());
-        leftPMF.getSamples().add(leftSuccess);
-        leftPMF.getSamples().add(leftFailure);
-
-        IntProbabilityMassFunction rightPMF = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
-        IntSample rightSuccess = StoexFactory.eINSTANCE.createIntSample();
-        rightSuccess.setValue(1);
-        rightSuccess.setProbability(right.getP());
-        IntSample rightFailure = StoexFactory.eINSTANCE.createIntSample();
-        rightFailure.setValue(0);
-        rightFailure.setProbability(1 - right.getP());
-        rightPMF.getSamples().add(rightSuccess);
-        rightPMF.getSamples().add(rightFailure);
-
-        return convolve(leftPMF, rightPMF, operation);
-    }
-
-    public void printHistogram(IntProbabilityMassFunction pmf) {
-        for (IntSample sample : pmf.getSamples()) {
-            System.out.println("Value: " + sample.getValue() + ", Probability: " + sample.getProbability());
         }
     }
 

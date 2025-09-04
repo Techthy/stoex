@@ -2,13 +2,18 @@ package tools.vitruv.stoex.interpreter.operations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import tools.vitruv.stoex.stoex.DiscreteUniformDistribution;
 import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.GammaDistribution;
+import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
+import tools.vitruv.stoex.stoex.IntSample;
 import tools.vitruv.stoex.stoex.NormalDistribution;
+import tools.vitruv.stoex.stoex.PoissonDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
 import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
@@ -100,4 +105,49 @@ public class AddOperationTest {
         }
     }
 
+    @Test
+    @DisplayName("Should add two Poisson Distributions")
+    public void testAddPoissonDistributions() {
+        PoissonDistribution dist1 = StoexFactory.eINSTANCE.createPoissonDistribution();
+        dist1.setLambda(2.0);
+        PoissonDistribution dist2 = StoexFactory.eINSTANCE.createPoissonDistribution();
+        dist2.setLambda(3.0);
+
+        PoissonDistribution result = addOperation.evaluate(dist1, dist2);
+
+        assertEquals(5.0, result.getLambda(), 0.001);
+    }
+
+    @Test
+    @DisplayName("Should add two discrete Probability Mass Functions")
+    public void testAddIntPMFs() {
+        IntProbabilityMassFunction pmf1 = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+        IntSample sample1 = StoexFactory.eINSTANCE.createIntSample();
+        sample1.setValue(0);
+        sample1.setProbability(0.2);
+        pmf1.getSamples().add(sample1);
+        IntSample sample2 = StoexFactory.eINSTANCE.createIntSample();
+        sample2.setValue(1);
+        sample2.setProbability(0.8);
+        pmf1.getSamples().add(sample2);
+        DiscreteUniformDistribution pmf2 = StoexFactory.eINSTANCE.createDiscreteUniformDistribution();
+        pmf2.setA(1);
+        pmf2.setB(2);
+
+        Object result = addOperation.evaluate(pmf1, pmf2);
+        assertTrue(result instanceof IntProbabilityMassFunction);
+        IntProbabilityMassFunction intPmfResult = (IntProbabilityMassFunction) result;
+        // Expected samples: (1; 0.2), (2; 0.4), (3; 0.4)
+        assertEquals(3, intPmfResult.getSamples().size());
+        for (IntSample sample : intPmfResult.getSamples()) {
+            switch (sample.getValue()) {
+                case 1 -> assertEquals(0.1, sample.getProbability(), 0.001);
+                case 2 -> assertEquals(0.5, sample.getProbability(), 0.001);
+                case 3 -> assertEquals(0.4, sample.getProbability(), 0.001);
+                default -> {
+                    fail("Unexpected sample value: " + sample.getValue());
+                }
+            }
+        }
+    }
 }

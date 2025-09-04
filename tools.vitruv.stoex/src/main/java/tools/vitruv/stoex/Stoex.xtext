@@ -141,22 +141,11 @@ ProbabilityMassFunction:
 	BinomialDistribution |
 	PoissonDistribution |
 	DiscreteUniformDistribution |
-    IntProbabilityMassFunction |
-    DoubleProbabilityMassFunction |
-    EnumProbabilityMassFunction |
-    BooleanProbabilityMassFunction;
+    IntProbabilityMassFunction;
+
 
 IntProbabilityMassFunction:
     'IntPMF' '[' (samples+=NumericIntSample)+ ']';
-
-DoubleProbabilityMassFunction:
-    'DoublePMF' '[' (samples+=NumericRealSample)+ ']';
-
-EnumProbabilityMassFunction:
-    'EnumPMF' ('(' orderedDomain?='ordered' ')')? '[' (samples+=StringSample)+ ']';
-
-BooleanProbabilityMassFunction:
-    'BoolPMF' ('(' orderedDomain?='ordered' ')')? '[' (samples+=BoolSample)+ ']';
 
 BernoulliDistribution:
     'Bernoulli' '(' p=NUMBER ')';
@@ -168,7 +157,7 @@ PoissonDistribution:
     'Poisson' '(' lambda=NUMBER ')';
 
 DiscreteUniformDistribution:
-    'DiscreteUniform' '(' a=NUMBER ',' b=NUMBER ')';
+    'DiscreteUniform' '(' a=DECINT ',' b=DECINT ')';
 
 NumericIntSample returns IntSample:
     '(' value=SIGNED_INT ';' probability=NUMBER ')';

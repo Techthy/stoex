@@ -2,11 +2,12 @@ package tools.vitruv.stoex.interpreter.operations;
 
 import java.util.Random;
 
+import tools.vitruv.stoex.stoex.BinomialDistribution;
 import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.LognormalDistribution;
 import tools.vitruv.stoex.stoex.NormalDistribution;
-import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
+import tools.vitruv.stoex.stoex.ProbabilityFunction;
 import tools.vitruv.stoex.stoex.SampledDistribution;
 
 public class SampleHelper {
@@ -110,7 +111,25 @@ public class SampleHelper {
         return samples;
     }
 
-    public double[] getSamples(ProbabilityDensityFunction function) {
+    public double[] getSamples(BinomialDistribution distribution) {
+
+        double[] samples = new double[DEFAULT_NUM_SAMPLES];
+        int n = distribution.getN();
+        double p = distribution.getP();
+
+        for (int i = 0; i < DEFAULT_NUM_SAMPLES; i++) {
+            int x = 0;
+            for (int j = 0; j < n; j++) {
+                if (random.nextDouble() < p) {
+                    x++;
+                }
+            }
+            samples[i] = x;
+        }
+        return samples;
+    }
+
+    public double[] getSamples(ProbabilityFunction function) {
         if (function instanceof NormalDistribution normalDistribution) {
             return getSamples(normalDistribution);
         } else if (function instanceof ExponentialDistribution exponentialDistribution) {

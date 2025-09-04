@@ -4,7 +4,6 @@ import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
 import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
-import tools.vitruv.stoex.stoex.TermOperations;
 
 /**
  * Implements the operation "subtraction" for different kinds of operands.
@@ -34,7 +33,8 @@ public class SubOperation {
     public SampledDistribution addDistributions(double[] samplesLeft, double[] samplesRight) {
 
         MonteCarloOperation op = new MonteCarloOperation();
-        double[] combinedSamples = op.evaluateTermOperation(samplesLeft, samplesRight, 10000, TermOperations.ADD);
+        double[] combinedSamples = op.evaluateTermOperation(samplesLeft, samplesRight, 10000,
+                ProbabilityFunctionOperations.SUB);
 
         SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
         for (double d : combinedSamples) {

@@ -140,27 +140,35 @@ ProbabilityMassFunction:
 	BernoulliDistribution |
 	BinomialDistribution |
 	PoissonDistribution |
-	GeometricDistribution |
 	DiscreteUniformDistribution |
-    'IntPMF' '[' (samples+=NumericIntSample)+ ']' |
-    'DoublePMF' '[' (samples+=NumericRealSample)+ ']' |
-    'EnumPMF' ('(' orderedDomain?='ordered' ')')? '[' (samples+=StringSample)+ ']' |
+    IntProbabilityMassFunction |
+    DoubleProbabilityMassFunction |
+    EnumProbabilityMassFunction |
+    BooleanProbabilityMassFunction;
+
+IntProbabilityMassFunction:
+    'IntPMF' '[' (samples+=NumericIntSample)+ ']';
+
+DoubleProbabilityMassFunction:
+    'DoublePMF' '[' (samples+=NumericRealSample)+ ']';
+
+EnumProbabilityMassFunction:
+    'EnumPMF' ('(' orderedDomain?='ordered' ')')? '[' (samples+=StringSample)+ ']';
+
+BooleanProbabilityMassFunction:
     'BoolPMF' ('(' orderedDomain?='ordered' ')')? '[' (samples+=BoolSample)+ ']';
 
 BernoulliDistribution:
-    'Bernoulli' '(' p=DOUBLE ')';
+    'Bernoulli' '(' p=NUMBER ')';
 
 BinomialDistribution:
-    'Binomial' '(' n=DOUBLE ',' p=DOUBLE ')';
+    'Binomial' '(' n=DECINT ',' p=NUMBER ')';
 
 PoissonDistribution:
-    'Poisson' '(' lambda=DOUBLE ')';
-
-GeometricDistribution:
-    'Geometric' '(' p=DOUBLE ')';
+    'Poisson' '(' lambda=NUMBER ')';
 
 DiscreteUniformDistribution:
-    'DiscreteUniform' '(' a=DOUBLE ',' b=DOUBLE ')';
+    'DiscreteUniform' '(' a=NUMBER ',' b=NUMBER ')';
 
 NumericIntSample returns IntSample:
     '(' value=SIGNED_INT ';' probability=NUMBER ')';

@@ -6,6 +6,8 @@ import java.util.Random;
 
 import tools.vitruv.stoex.interpreter.StoexEvaluator;
 import tools.vitruv.stoex.interpreter.operations.AddOperation;
+import tools.vitruv.stoex.interpreter.operations.DivOperation;
+import tools.vitruv.stoex.interpreter.operations.MultOperation;
 import tools.vitruv.stoex.interpreter.operations.SubOperation;
 import tools.vitruv.stoex.stoex.AbstractNamedReference;
 import tools.vitruv.stoex.stoex.BernoulliDistribution;
@@ -116,35 +118,14 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
         return object;
     }
 
-    // Distribution evaluation - return simple representation for now
     @Override
     public Object caseBernoulliDistribution(BernoulliDistribution object) {
-        double p = object.getP();
-
-        validateProbability(p);
-
-        // For now, return a simple representation or sample a value
-        // You can extend this to return actual distribution objects if needed
-        return random.nextDouble() < p ? 1.0 : 0.0;
+        return object;
     }
 
     @Override
     public Object caseBinomialDistribution(BinomialDistribution object) {
-        double n = object.getN();
-        double p = object.getP();
-
-        if (n <= 0)
-            throw new IllegalArgumentException("Binomial n must be positive");
-        validateProbability(p);
-
-        // Simple binomial sampling
-        int successes = 0;
-        for (int i = 0; i < n; i++) {
-            if (random.nextDouble() < p) {
-                successes++;
-            }
-        }
-        return (double) successes;
+        return object;
     }
 
     @Override
@@ -329,48 +310,33 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
     // Operation evaluation methods
     private Object evaluateTermOperation(Object left, Object right, TermOperations operation) {
         switch (operation) {
-            case ADD:
-                return evaluateAdd(left, right);
-            case SUB:
-                return evaluateSubtract(left, right);
-            default:
-                throw new UnsupportedOperationException("Unknown term operation: " + operation);
+            case ADD -> {
+                AddOperation addOp = new AddOperation();
+                return addOp.evaluate(left, right);
+            }
+            case SUB -> {
+                SubOperation subOp = new SubOperation();
+                return subOp.evaluate(left, right);
+            }
+            default -> throw new UnsupportedOperationException("Unknown term operation: " + operation);
         }
-    }
-
-    private Object evaluateAdd(Object left, Object right) {
-        AddOperation addOp = new AddOperation();
-        return addOp.evaluate(left, right);
-    }
-
-    private Object evaluateSubtract(Object left, Object right) {
-        SubOperation subOp = new SubOperation();
-        return subOp.evaluate(left, right);
     }
 
     private Object evaluateProductOperation(Object left, Object right, ProductOperations operation) {
         switch (operation) {
-            case MULT:
-                return evaluateMultiply(left, right);
-            case DIV:
-                return evaluateDivide(left, right);
-            case MOD:
+            case MULT -> {
+                MultOperation multOp = new MultOperation();
+                return multOp.evaluate(left, right);
+            }
+            case DIV -> {
+                DivOperation divOp = new DivOperation();
+                return divOp.evaluate(left, right);
+            }
+            case MOD -> {
                 return evaluateModulo(left, right);
-            default:
-                throw new UnsupportedOperationException("Unknown product operation: " + operation);
+            }
+            default -> throw new UnsupportedOperationException("Unknown product operation: " + operation);
         }
-    }
-
-    private Object evaluateMultiply(Object left, Object right) {
-        return toDouble(left) * toDouble(right);
-    }
-
-    private Object evaluateDivide(Object left, Object right) {
-        double rightVal = toDouble(right);
-        if (rightVal == 0) {
-            throw new ArithmeticException("Division by zero");
-        }
-        return toDouble(left) / rightVal;
     }
 
     private Object evaluateModulo(Object left, Object right) {

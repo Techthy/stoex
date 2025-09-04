@@ -14,8 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import com.google.inject.Inject;
 
 import tools.vitruv.stoex.interpreter.operations.MonteCarloOperation;
+import tools.vitruv.stoex.stoex.BinomialDistribution;
 import tools.vitruv.stoex.stoex.Expression;
 import tools.vitruv.stoex.stoex.GammaDistribution;
+import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.tests.StoexInjectorProvider;
@@ -247,13 +249,38 @@ class ExpressionEvaluationVisitorTest {
         Expression expr = parseHelper.parse("Exponential(1.0) - Exponential(2.0)");
         Object result = evaluator.doSwitch(expr);
         assertTrue(result instanceof SampledDistribution);
-        SampledDistribution sampledResult = (SampledDistribution) result;
-        MonteCarloOperation operation = new MonteCarloOperation();
-        double[] valuesArray = sampledResult.getValues().stream().mapToDouble(Double::doubleValue).toArray();
-        double[][] histogram = operation.histogram(valuesArray, 10);
-        for (int i = 0; i < histogram[0].length - 1; i++) {
-            assertTrue(histogram[0][i] + 15 >= histogram[0][i + 1]);
-        }
+        // Result a more complex distribution (see plot)
     }
 
+    @Test
+    @DisplayName("Should add two bernoulli distributions (same p)")
+    void testAddBernoulliDistributionsSameP() throws Exception {
+        Expression expr = parseHelper.parse("Bernoulli(0.7) + Bernoulli(0.7)");
+        Object result = evaluator.doSwitch(expr);
+        assertTrue(result instanceof BinomialDistribution);
+        BinomialDistribution resultDist = (BinomialDistribution) result;
+        assertEquals(2, resultDist.getN());
+        assertEquals(0.7, resultDist.getP(), 1e-10);
+    }
+
+    @Test
+    @DisplayName("Should add two bernoulli distributions (different p)")
+    void testAddBernoulliDistributionsDifferentP() throws Exception {
+        Expression expr = parseHelper.parse("Bernoulli(0.7) + Bernoulli(0.4)");
+        Object result = evaluator.doSwitch(expr);
+        assertTrue(result instanceof IntProbabilityMassFunction);
+        IntProbabilityMassFunction resultDist = (IntProbabilityMassFunction) result;
+        assertEquals(3, resultDist.getSamples().size());
+        for (var sample : resultDist.getSamples()) {
+            if (sample.getValue() == 0) {
+                assertEquals(0.18, sample.getProbability(), 1e-10);
+            } else if (sample.getValue() == 1) {
+                assertEquals(0.54, sample.getProbability(), 1e-10);
+            } else if (sample.getValue() == 2) {
+                assertEquals(0.28, sample.getProbability(), 1e-10);
+            } else {
+                throw new RuntimeException("Unexpected sample value: " + sample.getValue());
+            }
+        }
+    }
 }

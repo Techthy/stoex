@@ -8,8 +8,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import tools.vitruv.stoex.stoex.TermOperations;
-
 /**
  * Unit tests for the {@link MonteCarloOperation} class,
  * which performs Monte Carlo operations on probability distributions
@@ -41,7 +39,7 @@ public class MonteCarloOperationTest {
         }
 
         // Act
-        double[] result = operation.evaluateTermOperation(dist1, dist2, 100000, TermOperations.ADD);
+        double[] result = operation.evaluateTermOperation(dist1, dist2, 100000, ProbabilityFunctionOperations.ADD);
         double[][] histogram = operation.histogram(result, 10);
 
         // Assert
@@ -84,7 +82,7 @@ public class MonteCarloOperationTest {
         }
 
         // Act
-        double[] result = operation.evaluateTermOperation(dist1, dist2, 100000, TermOperations.SUB);
+        double[] result = operation.evaluateTermOperation(dist1, dist2, 100000, ProbabilityFunctionOperations.SUB);
 
         // Assert
         // N(200, 3) - N(10, 4) = N(190, 5)

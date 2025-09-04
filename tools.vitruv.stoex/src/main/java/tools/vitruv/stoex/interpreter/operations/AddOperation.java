@@ -1,12 +1,16 @@
 package tools.vitruv.stoex.interpreter.operations;
 
+import tools.vitruv.stoex.stoex.BernoulliDistribution;
+import tools.vitruv.stoex.stoex.BinomialDistribution;
 import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.GammaDistribution;
+import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.NormalDistribution;
+import tools.vitruv.stoex.stoex.PoissonDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
+import tools.vitruv.stoex.stoex.ProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
-import tools.vitruv.stoex.stoex.TermOperations;
 
 /**
  * Implements the operation "addition" for different kinds of operands.
@@ -24,6 +28,37 @@ public class AddOperation {
 	public double evaluate(double left, double right) {
 		return left + right;
 	}
+
+	public Object evaluate(Object left, Object right) {
+
+		if (left instanceof NormalDistribution leftNorm && right instanceof NormalDistribution rightNorm) {
+			return evaluate(leftNorm, rightNorm);
+		} else if (left instanceof ExponentialDistribution leftExp
+				&& right instanceof ExponentialDistribution rightExp) {
+			return evaluate(leftExp, rightExp);
+		} else if (left instanceof GammaDistribution leftGamma && right instanceof GammaDistribution rightGamma) {
+			return evaluate(leftGamma, rightGamma);
+		} else if (left instanceof PoissonDistribution leftPoisson
+				&& right instanceof PoissonDistribution rightPoisson) {
+			return evaluate(leftPoisson, rightPoisson);
+		} else if (left instanceof BernoulliDistribution leftBernoulli
+				&& right instanceof BernoulliDistribution rightBernoulli) {
+			return evaluate(leftBernoulli, rightBernoulli);
+		} else if (left instanceof IntProbabilityMassFunction leftIntPMF
+				&& right instanceof IntProbabilityMassFunction rightIntPMF) {
+			return evaluate(leftIntPMF, rightIntPMF);
+		} else if (left instanceof ProbabilityDensityFunction leftPDF
+				&& right instanceof ProbabilityDensityFunction rightPDF) {
+			SampleHelper helper = new SampleHelper();
+			return addDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
+		}
+
+		double leftVal = toDouble(left);
+		double rightVal = toDouble(right);
+		return evaluate(leftVal, rightVal);
+	}
+
+	// Closed form solution for CONTINUOUS distributions
 
 	public NormalDistribution evaluate(NormalDistribution left, NormalDistribution right) {
 		NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
@@ -49,7 +84,8 @@ public class AddOperation {
 	public SampledDistribution addDistributions(double[] samplesLeft, double[] samplesRight) {
 
 		MonteCarloOperation op = new MonteCarloOperation();
-		double[] combinedSamples = op.evaluateTermOperation(samplesLeft, samplesRight, 10000, TermOperations.ADD);
+		double[] combinedSamples = op.evaluateTermOperation(samplesLeft, samplesRight, 10000,
+				ProbabilityFunctionOperations.ADD);
 
 		SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
 		for (double d : combinedSamples) {
@@ -71,25 +107,30 @@ public class AddOperation {
 		return result;
 	}
 
-	// Fallback that handles String and Boolean as well as the mixture of types
-	public Object evaluate(Object left, Object right) {
+	// Closed form solution for DISCRETE distributions
 
-		if (left instanceof NormalDistribution leftNorm && right instanceof NormalDistribution rightNorm) {
-			return evaluate(leftNorm, rightNorm);
-		} else if (left instanceof ExponentialDistribution leftExp
-				&& right instanceof ExponentialDistribution rightExp) {
-			return evaluate(leftExp, rightExp);
-		} else if (left instanceof GammaDistribution leftGamma && right instanceof GammaDistribution rightGamma) {
-			return evaluate(leftGamma, rightGamma);
-		} else if (left instanceof ProbabilityDensityFunction leftPDF
-				&& right instanceof ProbabilityDensityFunction rightPDF) {
-			SampleHelper helper = new SampleHelper();
-			return addDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
+	public PoissonDistribution evaluate(PoissonDistribution left, PoissonDistribution right) {
+		PoissonDistribution result = StoexFactory.eINSTANCE.createPoissonDistribution();
+		result.setLambda(left.getLambda() + right.getLambda());
+		return result;
+	}
+
+	public ProbabilityMassFunction evaluate(BernoulliDistribution left,
+			BernoulliDistribution right) {
+		// Closed Form Solution exists only for same p
+		if (left.getP() != right.getP()) {
+			DiscreteConvolution conv = new DiscreteConvolution();
+			return conv.convolve(left, right, ProbabilityFunctionOperations.ADD);
 		}
+		BinomialDistribution result = StoexFactory.eINSTANCE.createBinomialDistribution();
+		result.setN(2);
+		result.setP(left.getP());
+		return result;
+	}
 
-		double leftVal = toDouble(left);
-		double rightVal = toDouble(right);
-		return evaluate(leftVal, rightVal);
+	public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction left, IntProbabilityMassFunction right) {
+		DiscreteConvolution conv = new DiscreteConvolution();
+		return conv.convolve(left, right, ProbabilityFunctionOperations.ADD);
 	}
 
 	private double toDouble(Object value) {

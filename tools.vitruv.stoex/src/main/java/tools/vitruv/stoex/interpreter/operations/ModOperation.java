@@ -1,43 +1,43 @@
-// package de.uka.ipd.sdq.stoex.analyser.operations;
+package tools.vitruv.stoex.interpreter.operations;
 
-// import de.uka.ipd.sdq.probfunction.math.IProbabilityDensityFunction;
-// import de.uka.ipd.sdq.probfunction.math.IProbabilityMassFunction;
-// import de.uka.ipd.sdq.probfunction.math.exception.DomainNotNumbersException;
+import tools.vitruv.stoex.stoex.ProbabilityFunction;
 
-// /**
-// * Implements the operation "modulo" for different kinds of operands.
-// * Note, that so far only integers and doubles are supported.
-// * @author koziolek
-// */
-// public class ModOperation extends TermProductOperation {
+/**
+ * Implements the operation "modulo" for different kinds of operands.
+ * Note, that so far only integers and doubles are supported.
+ */
+public class ModOperation {
 
-// @Override
-// public double compute(double left, double right) {
-// return left % right;
-// }
+    public double compute(double left, double right) {
+        return left % right;
+    }
 
-// @Override
-// public int compute(int left, int right) {
-// return left % right;
-// }
+    public int compute(int left, int right) {
+        return left % right;
+    }
 
-// @Override
-// public IProbabilityMassFunction compute(IProbabilityMassFunction left,
-// double right) {
-// //TODO
-// //return left.mod(right);
-// throw new UnsupportedOperationException();
-// }
+    public Object compute(Object left, Object right) {
+        if (left instanceof ProbabilityFunction || right instanceof ProbabilityFunction) {
+            throw new IllegalArgumentException("Modulo operation is not defined for ProbabilityFunctions.");
+        }
+        return compute(toDouble(left), toDouble(right));
+    }
 
-// @Override
-// public IProbabilityDensityFunction compute(IProbabilityDensityFunction left,
-// double right) throws DomainNotNumbersException {
-// throw new UnsupportedOperationException();
-// }
+    private double toDouble(Object value) {
+        if (value instanceof Number number) {
+            return number.doubleValue();
+        }
+        if (value instanceof Boolean aBoolean) {
+            return aBoolean ? 1.0 : 0.0;
+        }
+        if (value instanceof String string) {
+            try {
+                return Double.parseDouble(string);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Cannot convert string to double: " + value);
+            }
+        }
+        throw new IllegalArgumentException("Cannot convert " + value + " to double");
+    }
 
-// @Override
-// protected Double calculateOperationForValues(Double value1, Double value2) {
-// return value1 % value2;
-// }
-
-// }
+}

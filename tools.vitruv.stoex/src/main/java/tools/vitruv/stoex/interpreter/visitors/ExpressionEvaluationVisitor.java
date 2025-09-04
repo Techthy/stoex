@@ -7,6 +7,7 @@ import java.util.Random;
 import tools.vitruv.stoex.interpreter.StoexEvaluator;
 import tools.vitruv.stoex.interpreter.operations.AddOperation;
 import tools.vitruv.stoex.interpreter.operations.DivOperation;
+import tools.vitruv.stoex.interpreter.operations.ModOperation;
 import tools.vitruv.stoex.interpreter.operations.MultOperation;
 import tools.vitruv.stoex.interpreter.operations.SubOperation;
 import tools.vitruv.stoex.stoex.AbstractNamedReference;
@@ -16,6 +17,7 @@ import tools.vitruv.stoex.stoex.BoolLiteral;
 import tools.vitruv.stoex.stoex.BooleanOperatorExpression;
 import tools.vitruv.stoex.stoex.CompareExpression;
 import tools.vitruv.stoex.stoex.CompareOperations;
+import tools.vitruv.stoex.stoex.DiscreteUniformDistribution;
 import tools.vitruv.stoex.stoex.DoubleLiteral;
 import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.FunctionLiteral;
@@ -130,22 +132,12 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
 
     @Override
     public Object casePoissonDistribution(PoissonDistribution object) {
-        double lambda = object.getLambda();
+        return object;
+    }
 
-        if (lambda <= 0)
-            throw new IllegalArgumentException("Poisson lambda must be positive");
-
-        // Simple Poisson sampling using Knuth's algorithm
-        double L = Math.exp(-lambda);
-        int k = 0;
-        double p = 1.0;
-
-        do {
-            k++;
-            p *= random.nextDouble();
-        } while (p > L);
-
-        return (double) (k - 1);
+    @Override
+    public Object caseDiscreteUniformDistribution(DiscreteUniformDistribution object) {
+        return object;
     }
 
     @Override
@@ -333,14 +325,11 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
                 return divOp.evaluate(left, right);
             }
             case MOD -> {
-                return evaluateModulo(left, right);
+                ModOperation modOp = new ModOperation();
+                return modOp.compute(left, right);
             }
             default -> throw new UnsupportedOperationException("Unknown product operation: " + operation);
         }
-    }
-
-    private Object evaluateModulo(Object left, Object right) {
-        return toDouble(left) % toDouble(right);
     }
 
     private Object evaluatePowerOperation(Object base, Object exponent) {

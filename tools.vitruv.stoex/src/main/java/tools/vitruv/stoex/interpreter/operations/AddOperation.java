@@ -34,6 +34,10 @@ public class AddOperation {
 		// CONTINUOUS
 		if (left instanceof NormalDistribution leftNorm && right instanceof NormalDistribution rightNorm) {
 			return evaluate(leftNorm, rightNorm);
+		} else if (left instanceof NormalDistribution leftNorm && right instanceof Number rightNum) {
+			return evaluate(leftNorm, rightNum.doubleValue());
+		} else if (left instanceof Number leftNum && right instanceof NormalDistribution rightNorm) {
+			return evaluate(leftNum.doubleValue(), rightNorm);
 		} else if (left instanceof ExponentialDistribution leftExp
 				&& right instanceof ExponentialDistribution rightExp) {
 			return evaluate(leftExp, rightExp);
@@ -43,6 +47,12 @@ public class AddOperation {
 				&& right instanceof ProbabilityDensityFunction rightPDF) {
 			SampleHelper helper = new SampleHelper();
 			return addDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
+		} else if (left instanceof ProbabilityDensityFunction leftPDF && right instanceof Number rightNum) {
+			SampleHelper helper = new SampleHelper();
+			return scalarAddition(helper.getSamples(leftPDF), rightNum.doubleValue());
+		} else if (left instanceof Number leftNum && right instanceof ProbabilityDensityFunction rightPDF) {
+			SampleHelper helper = new SampleHelper();
+			return scalarAddition(leftNum.doubleValue(), helper.getSamples(rightPDF));
 			// DISCRETE
 		} else if (left instanceof PoissonDistribution leftPoisson
 				&& right instanceof PoissonDistribution rightPoisson) {
@@ -57,6 +67,12 @@ public class AddOperation {
 				&& right instanceof ProbabilityMassFunction rightPMF) {
 			DiscreteConvolution conv = new DiscreteConvolution();
 			return addDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
+		} else if (left instanceof ProbabilityMassFunction leftPMF && right instanceof Integer rightInt) {
+			DiscreteConvolution conv = new DiscreteConvolution();
+			return scalarAddition(conv.convertToPMF(leftPMF), rightInt);
+		} else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
+			DiscreteConvolution conv = new DiscreteConvolution();
+			return scalarAddition(conv.convertToPMF(rightIntPMF), leftInt);
 		}
 		double leftVal = toDouble(left);
 		double rightVal = toDouble(right);
@@ -112,6 +128,31 @@ public class AddOperation {
 		return result;
 	}
 
+	// Scalar + Distribution cases for CONTINUOUS distributions
+
+	public NormalDistribution evaluate(NormalDistribution left, double right) {
+		NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
+		result.setMu(left.getMu() + right);
+		result.setSigma(left.getSigma());
+		return result;
+	}
+
+	public NormalDistribution evaluate(double left, NormalDistribution right) {
+		return evaluate(right, left);
+	}
+
+	public SampledDistribution scalarAddition(double[] samplesLeft, double right) {
+		SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
+		for (double d : samplesLeft) {
+			result.getValues().add(d + right);
+		}
+		return result;
+	}
+
+	public SampledDistribution scalarAddition(double left, double[] samplesRight) {
+		return scalarAddition(samplesRight, left);
+	}
+
 	// Closed form solution for DISCRETE distributions
 
 	public PoissonDistribution evaluate(PoissonDistribution left, PoissonDistribution right) {
@@ -150,6 +191,23 @@ public class AddOperation {
 			IntProbabilityMassFunction right) {
 		DiscreteConvolution conv = new DiscreteConvolution();
 		return conv.convolve(left, right, ProbabilityFunctionOperations.ADD);
+	}
+
+	// Scalar + Distribution cases for DISCRETE distributions
+
+	public IntProbabilityMassFunction scalarAddition(IntProbabilityMassFunction left, int right) {
+		IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+		for (var sample : left.getSamples()) {
+			var newSample = StoexFactory.eINSTANCE.createIntSample();
+			newSample.setValue(sample.getValue() + right);
+			newSample.setProbability(sample.getProbability());
+			result.getSamples().add(newSample);
+		}
+		return result;
+	}
+
+	public IntProbabilityMassFunction scalarAddition(int left, IntProbabilityMassFunction right) {
+		return scalarAddition(right, left);
 	}
 
 	private double toDouble(Object value) {

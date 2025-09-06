@@ -150,4 +150,60 @@ public class AddOperationTest {
             }
         }
     }
+
+    @Test
+    @DisplayName("Should add number and normal distribution")
+    public void testAddIntegerAndNormalDistribution() {
+        NormalDistribution dist = StoexFactory.eINSTANCE.createNormalDistribution();
+        dist.setMu(5);
+        dist.setSigma(2);
+        double value = 3.0;
+        NormalDistribution result = addOperation.evaluate(dist, value);
+        assertEquals(8.0, result.getMu(), 0.001);
+        assertEquals(2.0, result.getSigma(), 0.001);
+    }
+
+    @Test
+    @DisplayName("Should add number and sampled distribution")
+    public void testAddDoubleAndSampledDistribution() {
+        SampledDistribution dist = StoexFactory.eINSTANCE.createSampledDistribution();
+        dist.getValues().add(5.0);
+        dist.getValues().add(7.0);
+        double value = 3.0;
+        Object result = addOperation.evaluate(dist, value);
+        assertTrue(result instanceof SampledDistribution);
+        SampledDistribution sampledResult = (SampledDistribution) result;
+        assertEquals(2, sampledResult.getValues().size());
+        assertEquals(8.0, sampledResult.getValues().get(0), 0.001);
+        assertEquals(10.0, sampledResult.getValues().get(1), 0.001);
+    }
+
+    @Test
+    @DisplayName("Should add integer and IntProbabilityMassFunction")
+    public void testAddIntegerAndIntPMF() {
+        IntProbabilityMassFunction pmf = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+        IntSample sample1 = StoexFactory.eINSTANCE.createIntSample();
+        sample1.setValue(0);
+        sample1.setProbability(0.5);
+        pmf.getSamples().add(sample1);
+        IntSample sample2 = StoexFactory.eINSTANCE.createIntSample();
+        sample2.setValue(2);
+        sample2.setProbability(0.5);
+        pmf.getSamples().add(sample2);
+        int value = 3;
+        Object result = addOperation.evaluate(pmf, value);
+        assertTrue(result instanceof IntProbabilityMassFunction);
+        IntProbabilityMassFunction intPmfResult = (IntProbabilityMassFunction) result;
+        // Expected samples: (3; 0.5), (5; 0.5)
+        assertEquals(2, intPmfResult.getSamples().size());
+        for (IntSample sample : intPmfResult.getSamples()) {
+            switch (sample.getValue()) {
+                case 3 -> assertEquals(0.5, sample.getProbability(), 0.001);
+                case 5 -> assertEquals(0.5, sample.getProbability(), 0.001);
+                default -> {
+                    fail("Unexpected sample value: " + sample.getValue());
+                }
+            }
+        }
+    }
 }

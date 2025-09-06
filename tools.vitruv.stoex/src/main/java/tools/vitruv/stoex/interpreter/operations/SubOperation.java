@@ -10,9 +10,6 @@ import tools.vitruv.stoex.stoex.StoexFactory;
 /**
  * Implements the operation "subtraction" for different kinds of operands.
  *
- * closed form solutions exist for NormalDistribution, ExponentialDistribution,
- * and GammaDistribution
- *
  */
 public class SubOperation {
 
@@ -60,7 +57,7 @@ public class SubOperation {
         return evaluate(right, left);
     }
 
-    public SampledDistribution scalarAddition(double[] samplesLeft, double right) {
+    public SampledDistribution scalarSubtraction(double[] samplesLeft, double right) {
         SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
         for (double d : samplesLeft) {
             result.getValues().add(d - right);
@@ -68,8 +65,8 @@ public class SubOperation {
         return result;
     }
 
-    public SampledDistribution scalarAddition(double left, double[] samplesRight) {
-        return scalarAddition(samplesRight, left);
+    public SampledDistribution scalarSubtraction(double left, double[] samplesRight) {
+        return scalarSubtraction(samplesRight, left);
     }
 
     // DISCRETE

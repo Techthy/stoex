@@ -1,5 +1,6 @@
 package tools.vitruv.stoex.interpreter.operations;
 
+import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.LognormalDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
 import tools.vitruv.stoex.stoex.SampledDistribution;
@@ -21,6 +22,8 @@ public class DivOperation {
         return left / right;
     }
 
+    // CONTINUOUS
+
     public LognormalDistribution evaluate(LognormalDistribution left, LognormalDistribution right) {
         LognormalDistribution result = StoexFactory.eINSTANCE.createLognormalDistribution();
         result.setMu(left.getMu() - right.getMu());
@@ -28,7 +31,7 @@ public class DivOperation {
         return result;
     }
 
-    public SampledDistribution subDistributions(double[] samplesLeft, double[] samplesRight) {
+    public SampledDistribution divDistributions(double[] samplesLeft, double[] samplesRight) {
 
         MonteCarloOperation op = new MonteCarloOperation();
         double[] combinedSamples = op.evaluateTermOperation(samplesLeft, samplesRight, 10000,
@@ -41,6 +44,67 @@ public class DivOperation {
         return result;
     }
 
+    // Scalar * distribution cases for CONTINUOUS distributions
+
+    public LognormalDistribution evaluate(LognormalDistribution left, double right) {
+        if (right == 0) {
+            throw new ArithmeticException("Division by zero");
+        }
+        LognormalDistribution result = StoexFactory.eINSTANCE.createLognormalDistribution();
+        result.setMu(left.getMu() - Math.log(right));
+        result.setSigma(left.getSigma());
+        return result;
+    }
+
+    public LognormalDistribution evaluate(double left, LognormalDistribution right) {
+        return evaluate(right, left);
+    }
+
+    public SampledDistribution scalarMultiplication(double[] samplesLeft, double right) {
+        if (right == 0) {
+            throw new ArithmeticException("Division by zero");
+        }
+        SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
+        for (double d : samplesLeft) {
+            result.getValues().add(d * right);
+        }
+        return result;
+    }
+
+    public SampledDistribution scalarMultiplication(double left, double[] samplesRight) {
+        return scalarMultiplication(samplesRight, left);
+    }
+
+    // DISCRETE
+
+    public IntProbabilityMassFunction multDistributions(IntProbabilityMassFunction left,
+            IntProbabilityMassFunction right) {
+        DiscreteConvolution conv = new DiscreteConvolution();
+        return conv.convolve(left, right, ProbabilityFunctionOperations.DIV);
+    }
+
+    // Scalar * Distribution cases for DISCRETE distributions
+
+    public IntProbabilityMassFunction scalarMultiplication(IntProbabilityMassFunction left, int right) {
+        if (right == 0) {
+            throw new ArithmeticException("Division by zero");
+        }
+        IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+        for (var sample : left.getSamples()) {
+            if (sample.getValue() % right == 0) { // only include samples that divide evenly
+                var newSample = StoexFactory.eINSTANCE.createIntSample();
+                newSample.setValue(sample.getValue() / right);
+                newSample.setProbability(sample.getProbability());
+                result.getSamples().add(newSample);
+            }
+        }
+        return result;
+    }
+
+    public IntProbabilityMassFunction scalarMultiplication(int left, IntProbabilityMassFunction right) {
+        return scalarMultiplication(right, left);
+    }
+
     // Fallback that handles String and Boolean as well as the mixture of types
     public Object evaluate(Object left, Object right) {
         if (left instanceof LognormalDistribution leftLog && right instanceof LognormalDistribution rightLog) {
@@ -48,7 +112,26 @@ public class DivOperation {
         } else if (left instanceof ProbabilityDensityFunction leftSample
                 && right instanceof ProbabilityDensityFunction rightSample) {
             SampleHelper helper = new SampleHelper();
-            return subDistributions(helper.getSamples(leftSample), helper.getSamples(rightSample));
+            return divDistributions(helper.getSamples(leftSample), helper.getSamples(rightSample));
+        } else if (left instanceof LognormalDistribution leftLog && right instanceof Number rightNum) {
+            SampleHelper helper = new SampleHelper();
+            return scalarMultiplication(helper.getSamples(leftLog), rightNum.doubleValue());
+        } else if (left instanceof Number leftNum && right instanceof LognormalDistribution rightLog) {
+            SampleHelper helper = new SampleHelper();
+            return scalarMultiplication(helper.getSamples(rightLog), leftNum.doubleValue());
+        } else if (left instanceof ProbabilityDensityFunction leftPDF && right instanceof Number rightNum) {
+            SampleHelper helper = new SampleHelper();
+            return scalarMultiplication(helper.getSamples(leftPDF), rightNum.doubleValue());
+        } else if (left instanceof Number leftNum && right instanceof ProbabilityDensityFunction rightPDF) {
+            SampleHelper helper = new SampleHelper();
+            return scalarMultiplication(helper.getSamples(rightPDF), leftNum.doubleValue());
+        } else if (left instanceof IntProbabilityMassFunction leftIntPMF
+                && right instanceof IntProbabilityMassFunction rightIntPMF) {
+            return multDistributions(leftIntPMF, rightIntPMF);
+        } else if (left instanceof IntProbabilityMassFunction leftIntPMF && right instanceof Integer rightInt) {
+            return scalarMultiplication(leftIntPMF, rightInt);
+        } else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
+            return scalarMultiplication(rightIntPMF, leftInt);
         }
 
         double leftVal = toDouble(left);

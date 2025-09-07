@@ -57,7 +57,13 @@ public class DivOperation {
     }
 
     public LognormalDistribution evaluate(double left, LognormalDistribution right) {
-        return evaluate(right, left);
+        if (left == 0) {
+            throw new ArithmeticException("Division by zero");
+        }
+        LognormalDistribution result = StoexFactory.eINSTANCE.createLognormalDistribution();
+        result.setMu(Math.log(left) - right.getMu());
+        result.setSigma(right.getSigma());
+        return result;
     }
 
     public SampledDistribution scalarMultiplication(double[] samplesLeft, double right) {
@@ -72,7 +78,14 @@ public class DivOperation {
     }
 
     public SampledDistribution scalarMultiplication(double left, double[] samplesRight) {
-        return scalarMultiplication(samplesRight, left);
+        if (left == 0) {
+            throw new ArithmeticException("Division by zero");
+        }
+        SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
+        for (double d : samplesRight) {
+            result.getValues().add(left / d);
+        }
+        return result;
     }
 
     // DISCRETE
@@ -102,7 +115,19 @@ public class DivOperation {
     }
 
     public IntProbabilityMassFunction evaluate(int left, IntProbabilityMassFunction right) {
-        return evaluate(right, left);
+        if (left == 0) {
+            throw new ArithmeticException("Division by zero");
+        }
+        IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+        for (var sample : right.getSamples()) {
+            if (left % sample.getValue() == 0) { // only include samples that divide evenly
+                var newSample = StoexFactory.eINSTANCE.createIntSample();
+                newSample.setValue(left / sample.getValue());
+                newSample.setProbability(sample.getProbability());
+                result.getSamples().add(newSample);
+            }
+        }
+        return result;
     }
 
     // Fallback that handles String and Boolean as well as the mixture of types

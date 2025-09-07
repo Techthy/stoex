@@ -66,7 +66,11 @@ public class SubOperation {
     }
 
     public SampledDistribution evaluate(double left, double[] samplesRight) {
-        return evaluate(samplesRight, left);
+        SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
+        for (double d : samplesRight) {
+            result.getValues().add(left - d);
+        }
+        return result;
     }
 
     // DISCRETE
@@ -91,7 +95,14 @@ public class SubOperation {
     }
 
     public IntProbabilityMassFunction evaluate(int left, IntProbabilityMassFunction right) {
-        return evaluate(right, left);
+        IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+        for (var sample : right.getSamples()) {
+            var newSample = StoexFactory.eINSTANCE.createIntSample();
+            newSample.setValue(left - sample.getValue());
+            newSample.setProbability(sample.getProbability());
+            result.getSamples().add(newSample);
+        }
+        return result;
     }
 
     // Fallback that handles String and Boolean as well as the mixture of types

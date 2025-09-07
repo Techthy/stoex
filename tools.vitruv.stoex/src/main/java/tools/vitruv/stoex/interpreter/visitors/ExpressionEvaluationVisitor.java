@@ -9,6 +9,7 @@ import tools.vitruv.stoex.interpreter.operations.AddOperation;
 import tools.vitruv.stoex.interpreter.operations.DivOperation;
 import tools.vitruv.stoex.interpreter.operations.ModOperation;
 import tools.vitruv.stoex.interpreter.operations.MultOperation;
+import tools.vitruv.stoex.interpreter.operations.PowerOperator;
 import tools.vitruv.stoex.interpreter.operations.SubOperation;
 import tools.vitruv.stoex.stoex.AbstractNamedReference;
 import tools.vitruv.stoex.stoex.BernoulliDistribution;
@@ -186,7 +187,8 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
         Object baseValue = doSwitch(object.getBase());
         Object exponentValue = doSwitch(object.getExponent());
 
-        return evaluatePowerOperation(baseValue, exponentValue);
+        PowerOperator powerOp = new PowerOperator();
+        return powerOp.evaluate(baseValue, exponentValue);
     }
 
     @Override

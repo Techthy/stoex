@@ -65,6 +65,15 @@ public class MonteCarloOperation {
         return result;
     }
 
+    public double[] evaluatePowerOperation(double[] dist, double exponent) {
+        double[] result = new double[dist.length];
+
+        for (int i = 0; i < dist.length; i++) {
+            result[i] = Math.pow(dist[i], exponent);
+        }
+        return result;
+    }
+
     /**
      * Computes a histogram for a sample array.
      *

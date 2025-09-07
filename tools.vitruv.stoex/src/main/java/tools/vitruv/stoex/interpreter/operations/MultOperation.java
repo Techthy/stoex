@@ -51,7 +51,7 @@ public class MultOperation {
         return evaluate(right, left);
     }
 
-    public SampledDistribution scalarMultiplication(double[] samplesLeft, double right) {
+    public SampledDistribution evaluate(double[] samplesLeft, double right) {
         SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
         for (double d : samplesLeft) {
             result.getValues().add(d * right);
@@ -59,8 +59,8 @@ public class MultOperation {
         return result;
     }
 
-    public SampledDistribution scalarMultiplication(double left, double[] samplesRight) {
-        return scalarMultiplication(samplesRight, left);
+    public SampledDistribution evaluate(double left, double[] samplesRight) {
+        return evaluate(samplesRight, left);
     }
 
     // DISCRETE
@@ -73,7 +73,7 @@ public class MultOperation {
 
     // Scalar * Distribution cases for DISCRETE distributions
 
-    public IntProbabilityMassFunction scalarMultiplication(IntProbabilityMassFunction left, int right) {
+    public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction left, int right) {
         IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
         for (var sample : left.getSamples()) {
             var newSample = StoexFactory.eINSTANCE.createIntSample();
@@ -84,8 +84,8 @@ public class MultOperation {
         return result;
     }
 
-    public IntProbabilityMassFunction scalarMultiplication(int left, IntProbabilityMassFunction right) {
-        return scalarMultiplication(right, left);
+    public IntProbabilityMassFunction evaluate(int left, IntProbabilityMassFunction right) {
+        return evaluate(right, left);
     }
 
     // Fallback that handles String and Boolean as well as the mixture of types
@@ -98,26 +98,26 @@ public class MultOperation {
             return multDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
         } else if (left instanceof LognormalDistribution leftLog && right instanceof Number rightNum) {
             SampleHelper helper = new SampleHelper();
-            return scalarMultiplication(helper.getSamples(leftLog), rightNum.doubleValue());
+            return evaluate(helper.getSamples(leftLog), rightNum.doubleValue());
         } else if (left instanceof Number leftNum && right instanceof LognormalDistribution rightLog) {
             SampleHelper helper = new SampleHelper();
-            return scalarMultiplication(helper.getSamples(rightLog), leftNum.doubleValue());
+            return evaluate(helper.getSamples(rightLog), leftNum.doubleValue());
         } else if (left instanceof ProbabilityDensityFunction leftPDF && right instanceof Number rightNum) {
             SampleHelper helper = new SampleHelper();
-            return scalarMultiplication(helper.getSamples(leftPDF), rightNum.doubleValue());
+            return evaluate(helper.getSamples(leftPDF), rightNum.doubleValue());
         } else if (left instanceof Number leftNum && right instanceof ProbabilityDensityFunction rightPDF) {
             SampleHelper helper = new SampleHelper();
-            return scalarMultiplication(helper.getSamples(rightPDF), leftNum.doubleValue());
+            return evaluate(helper.getSamples(rightPDF), leftNum.doubleValue());
         } else if (left instanceof ProbabilityMassFunction leftPMF
                 && right instanceof ProbabilityMassFunction rightPMF) {
             DiscreteConvolution conv = new DiscreteConvolution();
             return multDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
         } else if (left instanceof ProbabilityMassFunction leftPMF && right instanceof Integer rightInt) {
             DiscreteConvolution conv = new DiscreteConvolution();
-            return scalarMultiplication(conv.convertToPMF(leftPMF), rightInt);
+            return evaluate(conv.convertToPMF(leftPMF), rightInt);
         } else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
             DiscreteConvolution conv = new DiscreteConvolution();
-            return scalarMultiplication(conv.convertToPMF(rightIntPMF), leftInt);
+            return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
         }
         double leftVal = toDouble(left);
         double rightVal = toDouble(right);

@@ -49,10 +49,10 @@ public class AddOperation {
 			return addDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
 		} else if (left instanceof ProbabilityDensityFunction leftPDF && right instanceof Number rightNum) {
 			SampleHelper helper = new SampleHelper();
-			return scalarAddition(helper.getSamples(leftPDF), rightNum.doubleValue());
+			return evaluate(helper.getSamples(leftPDF), rightNum.doubleValue());
 		} else if (left instanceof Number leftNum && right instanceof ProbabilityDensityFunction rightPDF) {
 			SampleHelper helper = new SampleHelper();
-			return scalarAddition(leftNum.doubleValue(), helper.getSamples(rightPDF));
+			return evaluate(leftNum.doubleValue(), helper.getSamples(rightPDF));
 			// DISCRETE
 		} else if (left instanceof PoissonDistribution leftPoisson
 				&& right instanceof PoissonDistribution rightPoisson) {
@@ -69,10 +69,10 @@ public class AddOperation {
 			return addDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
 		} else if (left instanceof ProbabilityMassFunction leftPMF && right instanceof Integer rightInt) {
 			DiscreteConvolution conv = new DiscreteConvolution();
-			return scalarAddition(conv.convertToPMF(leftPMF), rightInt);
+			return evaluate(conv.convertToPMF(leftPMF), rightInt);
 		} else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
 			DiscreteConvolution conv = new DiscreteConvolution();
-			return scalarAddition(conv.convertToPMF(rightIntPMF), leftInt);
+			return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
 		}
 		double leftVal = toDouble(left);
 		double rightVal = toDouble(right);
@@ -141,7 +141,7 @@ public class AddOperation {
 		return evaluate(right, left);
 	}
 
-	public SampledDistribution scalarAddition(double[] samplesLeft, double right) {
+	public SampledDistribution evaluate(double[] samplesLeft, double right) {
 		SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
 		for (double d : samplesLeft) {
 			result.getValues().add(d + right);
@@ -149,8 +149,8 @@ public class AddOperation {
 		return result;
 	}
 
-	public SampledDistribution scalarAddition(double left, double[] samplesRight) {
-		return scalarAddition(samplesRight, left);
+	public SampledDistribution evaluate(double left, double[] samplesRight) {
+		return evaluate(samplesRight, left);
 	}
 
 	// Closed form solution for DISCRETE distributions
@@ -195,7 +195,7 @@ public class AddOperation {
 
 	// Scalar + Distribution cases for DISCRETE distributions
 
-	public IntProbabilityMassFunction scalarAddition(IntProbabilityMassFunction left, int right) {
+	public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction left, int right) {
 		IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
 		for (var sample : left.getSamples()) {
 			var newSample = StoexFactory.eINSTANCE.createIntSample();
@@ -206,8 +206,8 @@ public class AddOperation {
 		return result;
 	}
 
-	public IntProbabilityMassFunction scalarAddition(int left, IntProbabilityMassFunction right) {
-		return scalarAddition(right, left);
+	public IntProbabilityMassFunction evaluate(int left, IntProbabilityMassFunction right) {
+		return evaluate(right, left);
 	}
 
 	private double toDouble(Object value) {

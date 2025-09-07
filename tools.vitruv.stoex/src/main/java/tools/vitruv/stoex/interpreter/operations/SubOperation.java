@@ -57,7 +57,7 @@ public class SubOperation {
         return evaluate(right, left);
     }
 
-    public SampledDistribution scalarSubtraction(double[] samplesLeft, double right) {
+    public SampledDistribution evaluate(double[] samplesLeft, double right) {
         SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
         for (double d : samplesLeft) {
             result.getValues().add(d - right);
@@ -65,8 +65,8 @@ public class SubOperation {
         return result;
     }
 
-    public SampledDistribution scalarSubtraction(double left, double[] samplesRight) {
-        return scalarSubtraction(samplesRight, left);
+    public SampledDistribution evaluate(double left, double[] samplesRight) {
+        return evaluate(samplesRight, left);
     }
 
     // DISCRETE
@@ -79,7 +79,7 @@ public class SubOperation {
 
     // Scalar + Distribution cases for DISCRETE distributions
 
-    public IntProbabilityMassFunction scalarSubtraction(IntProbabilityMassFunction left, int right) {
+    public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction left, int right) {
         IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
         for (var sample : left.getSamples()) {
             var newSample = StoexFactory.eINSTANCE.createIntSample();
@@ -90,8 +90,8 @@ public class SubOperation {
         return result;
     }
 
-    public IntProbabilityMassFunction scalarSubtraction(int left, IntProbabilityMassFunction right) {
-        return scalarSubtraction(right, left);
+    public IntProbabilityMassFunction evaluate(int left, IntProbabilityMassFunction right) {
+        return evaluate(right, left);
     }
 
     // Fallback that handles String and Boolean as well as the mixture of types
@@ -109,10 +109,10 @@ public class SubOperation {
             return subDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
         } else if (left instanceof ProbabilityMassFunction leftPMF && right instanceof Integer rightInt) {
             DiscreteConvolution conv = new DiscreteConvolution();
-            return scalarSubtraction(conv.convertToPMF(leftPMF), rightInt);
+            return evaluate(conv.convertToPMF(leftPMF), rightInt);
         } else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
             DiscreteConvolution conv = new DiscreteConvolution();
-            return scalarSubtraction(conv.convertToPMF(rightIntPMF), leftInt);
+            return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
         }
 
         double leftVal = toDouble(left);

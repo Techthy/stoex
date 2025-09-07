@@ -85,7 +85,7 @@ public class DivOperation {
 
     // Scalar * Distribution cases for DISCRETE distributions
 
-    public IntProbabilityMassFunction scalarMultiplication(IntProbabilityMassFunction left, int right) {
+    public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction left, int right) {
         if (right == 0) {
             throw new ArithmeticException("Division by zero");
         }
@@ -101,8 +101,8 @@ public class DivOperation {
         return result;
     }
 
-    public IntProbabilityMassFunction scalarMultiplication(int left, IntProbabilityMassFunction right) {
-        return scalarMultiplication(right, left);
+    public IntProbabilityMassFunction evaluate(int left, IntProbabilityMassFunction right) {
+        return evaluate(right, left);
     }
 
     // Fallback that handles String and Boolean as well as the mixture of types
@@ -129,9 +129,9 @@ public class DivOperation {
                 && right instanceof IntProbabilityMassFunction rightIntPMF) {
             return multDistributions(leftIntPMF, rightIntPMF);
         } else if (left instanceof IntProbabilityMassFunction leftIntPMF && right instanceof Integer rightInt) {
-            return scalarMultiplication(leftIntPMF, rightInt);
+            return evaluate(leftIntPMF, rightInt);
         } else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
-            return scalarMultiplication(rightIntPMF, leftInt);
+            return evaluate(rightIntPMF, leftInt);
         }
 
         double leftVal = toDouble(left);

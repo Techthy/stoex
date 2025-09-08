@@ -283,4 +283,17 @@ class ExpressionEvaluationVisitorTest {
             }
         }
     }
+
+    @Test
+    @DisplayName("Test complex expression for clamping force uncertainty")
+    void testComplexExpression() throws Exception {
+        evaluator.setVariable("pistonDiameterInMM", "Normal(50, 2)"); // mm
+        evaluator.setVariable("hydraulicPressureInBar", "Sampled[70.0, 90.0, 75.0, 85.0, 80.0]"); // bar
+        Expression expr = parseHelper.parse("PI * (pistonDiameterInMM / 2) ^ 2 * hydraulicPressureInBar * 10 ^ 5");
+        Object result = evaluator.doSwitch(expr);
+        assertTrue(result instanceof SampledDistribution);
+        SampledDistribution resultDist = (SampledDistribution) result;
+        double mean = resultDist.getValues().stream().mapToDouble(Double::doubleValue).average().orElse(Double.NaN);
+        assertEquals(15707963270.0, mean, 1e9);
+    }
 }

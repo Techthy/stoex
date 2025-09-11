@@ -11,10 +11,14 @@ import tools.vitruv.stoex.stoex.StoexFactory;
 
 public class DiscreteConvolution {
 
-    public IntProbabilityMassFunction convolve(IntProbabilityMassFunction left,
+    public IntProbabilityMassFunction convolve(
+            IntProbabilityMassFunction left,
             IntProbabilityMassFunction right,
             ProbabilityFunctionOperations operation) {
+
         IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+
+        // combine all sample pairs
         for (IntSample sampleLeft : left.getSamples()) {
             for (IntSample sampleRight : right.getSamples()) {
 
@@ -36,6 +40,18 @@ public class DiscreteConvolution {
                 }
             }
         }
+
+        // --- normalization step ---
+        double totalProb = result.getSamples().stream()
+                .mapToDouble(IntSample::getProbability)
+                .sum();
+
+        if (totalProb > 0) {
+            for (IntSample s : result.getSamples()) {
+                s.setProbability(s.getProbability() / totalProb);
+            }
+        }
+
         return result;
     }
 

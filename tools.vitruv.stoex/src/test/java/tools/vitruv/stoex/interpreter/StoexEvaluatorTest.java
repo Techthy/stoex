@@ -229,4 +229,22 @@ class StoexEvaluatorTest {
         assertEquals("Normal(196.0,15.0)", serialized.replace(" ", ""));
     }
 
+    @Test
+    @DisplayName("Mixed Variables")
+    void testMixedVariables() {
+
+        NormalDistribution newValue = StoexFactory.eINSTANCE.createNormalDistribution();
+        newValue.setMu(20);
+        newValue.setSigma(0.667);
+
+        evaluator.setVariable("oldValue", 10);
+        evaluator.setVariable("throatWidth", 42);
+        evaluator.setVariable("newValue", newValue);
+
+        Object result = evaluator.evaluate("throatWidth + newValue - oldValue");
+        assertTrue(result instanceof NormalDistribution);
+        assertEquals(52.0, ((NormalDistribution) result).getMu(), 0.001);
+        assertEquals(0.667, ((NormalDistribution) result).getSigma(), 0.001);
+
+    }
 }

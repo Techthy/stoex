@@ -21,6 +21,7 @@ import tools.vitruv.stoex.stoex.CompareOperations;
 import tools.vitruv.stoex.stoex.DiscreteUniformDistribution;
 import tools.vitruv.stoex.stoex.DoubleLiteral;
 import tools.vitruv.stoex.stoex.ExponentialDistribution;
+import tools.vitruv.stoex.stoex.Expression;
 import tools.vitruv.stoex.stoex.FunctionLiteral;
 import tools.vitruv.stoex.stoex.IfElseExpression;
 import tools.vitruv.stoex.stoex.IntLiteral;
@@ -95,6 +96,11 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
         }
 
         if (value instanceof Number || value instanceof Boolean) {
+            return value;
+        }
+
+        // Check if Variable already is an Expression
+        if (value instanceof Expression) {
             return value;
         }
 

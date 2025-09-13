@@ -114,6 +114,10 @@ public class SubOperation {
                 && right instanceof ProbabilityDensityFunction rightPDF) {
             SampleHelper helper = new SampleHelper();
             return subDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
+        } else if (left instanceof NormalDistribution leftNorm && right instanceof Number rightNum) {
+            return evaluate(leftNorm, toDouble(rightNum));
+        } else if (left instanceof Number leftNum && right instanceof NormalDistribution rightNorm) {
+            return evaluate(toDouble(leftNum), rightNorm);
         } else if (left instanceof IntProbabilityMassFunction leftPMF
                 && right instanceof IntProbabilityMassFunction rightPMF) {
             DiscreteConvolution conv = new DiscreteConvolution();

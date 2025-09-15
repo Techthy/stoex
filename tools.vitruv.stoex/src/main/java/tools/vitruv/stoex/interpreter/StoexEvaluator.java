@@ -14,6 +14,7 @@ import com.google.inject.Injector;
 
 import tools.vitruv.stoex.StoexStandaloneSetup;
 import tools.vitruv.stoex.interpreter.visitors.ExpressionEvaluationVisitor;
+import tools.vitruv.stoex.interpreter.visitors.ExpressionMeanVisitor;
 import tools.vitruv.stoex.stoex.Expression;
 
 /**
@@ -88,6 +89,15 @@ public class StoexEvaluator {
      */
     public Object getVariable(String name) {
         return evaluator.getVariable(name);
+    }
+
+    public Number getMean(Expression expression) {
+        ExpressionMeanVisitor meanVisitor = new ExpressionMeanVisitor();
+        try {
+            return (Number) meanVisitor.doSwitch(expression);
+        } catch (ClassCastException e) {
+            throw new RuntimeException("Failed to convert mean result to Number.", e);
+        }
     }
 
     /**

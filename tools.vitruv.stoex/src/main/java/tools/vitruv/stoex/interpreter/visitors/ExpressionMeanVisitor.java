@@ -24,6 +24,7 @@ import tools.vitruv.stoex.stoex.PoissonDistribution;
 import tools.vitruv.stoex.stoex.PowerExpression;
 import tools.vitruv.stoex.stoex.ProbabilityFunction;
 import tools.vitruv.stoex.stoex.ProductExpression;
+import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.stoex.StringLiteral;
 import tools.vitruv.stoex.stoex.TermExpression;
 import tools.vitruv.stoex.stoex.Variable;
@@ -96,6 +97,13 @@ public class ExpressionMeanVisitor extends StoexSwitch<Object> {
     @Override
     public Object caseProbabilityFunction(ProbabilityFunction object) {
         return object;
+    }
+
+    @Override
+    public Object caseSampledDistribution(SampledDistribution object) {
+        // Mean of sampled distribution is the average of its values
+        return object.getValues().stream().mapToDouble(Double::doubleValue).average()
+                .orElseThrow(() -> new RuntimeException("Sampled distribution has no values"));
     }
 
     // Probability distributions - return their mean values

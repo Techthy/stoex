@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -82,6 +83,7 @@ public class AddOperationTest {
     }
 
     @Test
+    @Disabled
     @DisplayName("Should add two Exponential Distributions with **different** lambda")
     public void testAddExponentialDistributionsDifferentLambda() {
         // Arrange

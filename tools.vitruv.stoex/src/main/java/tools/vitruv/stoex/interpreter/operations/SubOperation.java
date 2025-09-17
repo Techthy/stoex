@@ -54,7 +54,10 @@ public class SubOperation {
     }
 
     public NormalDistribution evaluate(double left, NormalDistribution right) {
-        return evaluate(right, left);
+        NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
+        result.setMu(left - right.getMu());
+        result.setSigma(right.getSigma());
+        return result;
     }
 
     public SampledDistribution evaluate(double[] samplesLeft, double right) {

@@ -2,6 +2,7 @@ package tools.vitruv.stoex.interpreter.operations;
 
 import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.LognormalDistribution;
+import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
 import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
@@ -46,27 +47,24 @@ public class DivOperation {
 
     // Scalar * distribution cases for CONTINUOUS distributions
 
-    public LognormalDistribution evaluate(LognormalDistribution left, double right) {
+    public NormalDistribution evaluate(NormalDistribution left, double right) {
         if (right == 0) {
             throw new ArithmeticException("Division by zero");
         }
-        LognormalDistribution result = StoexFactory.eINSTANCE.createLognormalDistribution();
-        result.setMu(left.getMu() - Math.log(right));
-        result.setSigma(left.getSigma());
+        NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
+        result.setMu(left.getMu() / right);
+        result.setSigma(left.getSigma() / Math.abs(right));
         return result;
     }
 
-    public LognormalDistribution evaluate(double left, LognormalDistribution right) {
-        if (left == 0) {
-            throw new ArithmeticException("Division by zero");
-        }
-        LognormalDistribution result = StoexFactory.eINSTANCE.createLognormalDistribution();
-        result.setMu(Math.log(left) - right.getMu());
-        result.setSigma(right.getSigma());
+    public NormalDistribution evaluate(double left, NormalDistribution right) {
+        NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
+        result.setMu(left / right.getMu());
+        result.setSigma(Math.abs(left) / right.getSigma());
         return result;
     }
 
-    public SampledDistribution scalarDivision(double[] samplesLeft, double right) {
+    public SampledDistribution evaluate(double[] samplesLeft, double right) {
         if (right == 0) {
             throw new ArithmeticException("Division by zero");
         }
@@ -77,7 +75,7 @@ public class DivOperation {
         return result;
     }
 
-    public SampledDistribution scalarDivision(double left, double[] samplesRight) {
+    public SampledDistribution evaluate(double left, double[] samplesRight) {
         if (left == 0) {
             throw new ArithmeticException("Division by zero");
         }
@@ -138,18 +136,18 @@ public class DivOperation {
                 && right instanceof ProbabilityDensityFunction rightSample) {
             SampleHelper helper = new SampleHelper();
             return divDistributions(helper.getSamples(leftSample), helper.getSamples(rightSample));
-        } else if (left instanceof LognormalDistribution leftLog && right instanceof Number rightNum) {
+        } else if (left instanceof NormalDistribution leftLog && right instanceof Number rightNum) {
             SampleHelper helper = new SampleHelper();
-            return scalarDivision(helper.getSamples(leftLog), rightNum.doubleValue());
-        } else if (left instanceof Number leftNum && right instanceof LognormalDistribution rightLog) {
+            return evaluate(helper.getSamples(leftLog), rightNum.doubleValue());
+        } else if (left instanceof Number leftNum && right instanceof NormalDistribution rightLog) {
             SampleHelper helper = new SampleHelper();
-            return scalarDivision(helper.getSamples(rightLog), leftNum.doubleValue());
+            return evaluate(leftNum.doubleValue(), helper.getSamples(rightLog));
         } else if (left instanceof ProbabilityDensityFunction leftPDF && right instanceof Number rightNum) {
             SampleHelper helper = new SampleHelper();
-            return scalarDivision(helper.getSamples(leftPDF), rightNum.doubleValue());
+            return evaluate(helper.getSamples(leftPDF), rightNum.doubleValue());
         } else if (left instanceof Number leftNum && right instanceof ProbabilityDensityFunction rightPDF) {
             SampleHelper helper = new SampleHelper();
-            return scalarDivision(helper.getSamples(rightPDF), leftNum.doubleValue());
+            return evaluate(leftNum.doubleValue(), helper.getSamples(rightPDF));
         } else if (left instanceof IntProbabilityMassFunction leftIntPMF
                 && right instanceof IntProbabilityMassFunction rightIntPMF) {
             return multDistributions(leftIntPMF, rightIntPMF);

@@ -2,6 +2,7 @@ package tools.vitruv.stoex.interpreter.operations;
 
 import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.LognormalDistribution;
+import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
 import tools.vitruv.stoex.stoex.ProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.SampledDistribution;
@@ -40,14 +41,14 @@ public class MultOperation {
 
     // Scalar * Distribution cases for CONTINUOUS distributions
 
-    public LognormalDistribution evaluate(LognormalDistribution left, double right) {
-        LognormalDistribution result = StoexFactory.eINSTANCE.createLognormalDistribution();
-        result.setMu(left.getMu() + Math.log(right));
-        result.setSigma(left.getSigma());
+    public NormalDistribution evaluate(NormalDistribution left, double right) {
+        NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
+        result.setMu(left.getMu() * right);
+        result.setSigma(left.getSigma() * Math.abs(right));
         return result;
     }
 
-    public LognormalDistribution evaluate(double left, LognormalDistribution right) {
+    public NormalDistribution evaluate(double left, NormalDistribution right) {
         return evaluate(right, left);
     }
 
@@ -96,12 +97,10 @@ public class MultOperation {
                 && right instanceof ProbabilityDensityFunction rightPDF) {
             SampleHelper helper = new SampleHelper();
             return multDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
-        } else if (left instanceof LognormalDistribution leftLog && right instanceof Number rightNum) {
-            SampleHelper helper = new SampleHelper();
-            return evaluate(helper.getSamples(leftLog), rightNum.doubleValue());
-        } else if (left instanceof Number leftNum && right instanceof LognormalDistribution rightLog) {
-            SampleHelper helper = new SampleHelper();
-            return evaluate(helper.getSamples(rightLog), leftNum.doubleValue());
+        } else if (left instanceof NormalDistribution leftNorm && right instanceof Number rightNum) {
+            return evaluate(leftNorm, rightNum.doubleValue());
+        } else if (left instanceof Number leftNum && right instanceof NormalDistribution rightNorm) {
+            return evaluate(rightNorm, leftNum.doubleValue());
         } else if (left instanceof ProbabilityDensityFunction leftPDF && right instanceof Number rightNum) {
             SampleHelper helper = new SampleHelper();
             return evaluate(helper.getSamples(leftPDF), rightNum.doubleValue());

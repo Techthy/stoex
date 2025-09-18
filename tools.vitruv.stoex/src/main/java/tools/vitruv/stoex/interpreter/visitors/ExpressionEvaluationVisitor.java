@@ -334,7 +334,7 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
             }
             case MOD -> {
                 ModOperation modOp = new ModOperation();
-                return modOp.compute(left, right);
+                return modOp.evaluate(left, right);
             }
             default -> throw new UnsupportedOperationException("Unknown product operation: " + operation);
         }

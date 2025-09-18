@@ -10,19 +10,19 @@ import tools.vitruv.stoex.stoex.ProbabilityFunction;
  */
 public class ModOperation {
 
-    public double compute(double left, double right) {
+    public double evaluate(double left, double right) {
         return left % right;
     }
 
-    public int compute(int left, int right) {
+    public int evaluate(int left, int right) {
         return left % right;
     }
 
-    public Object compute(Object left, Object right) {
+    public Object evaluate(Object left, Object right) {
         if (left instanceof ProbabilityFunction || right instanceof ProbabilityFunction) {
             throw new IllegalArgumentException("Modulo operation is not defined for ProbabilityFunctions.");
         }
-        return compute(toDouble(left), toDouble(right));
+        return evaluate(toDouble(left), toDouble(right));
     }
 
     private double toDouble(Object value) {

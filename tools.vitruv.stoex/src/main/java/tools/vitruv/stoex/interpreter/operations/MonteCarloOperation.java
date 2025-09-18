@@ -4,24 +4,15 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 
+/**
+ * Implements Monte Carlo sampling operations for combining continuous
+ * probability distributions.
+ * 
+ * @author Hammann
+ */
 public class MonteCarloOperation {
 
     private final Random random = new Random();
-
-    // public SampledDistribution addDistributions(SampledDistribution dist1,
-    // SampledDistribution dist2) {
-    // // Perform Monte Carlo addition of two sampled distributions
-    // double[] samples1 =
-    // dist1.getValues().stream().mapToDouble(Double::doubleValue).toArray();
-    // double[] samples2 =
-    // dist2.getValues().stream().mapToDouble(Double::doubleValue).toArray();
-    // double[] summedSamples = evaluateTermOperation(samples1, samples2, 100000,
-    // MonteCarloTermOperations.ADD);
-    // SampledDistribution result =
-    // StoexFactory.eINSTANCE.createSampledDistribution();
-    // result.getValues().addAll(Arrays.stream(summedSamples).boxed().toList());
-    // return result;
-    // }
 
     /**
      * Performs Monte Carlo addition of two distributions represented by sample
@@ -102,6 +93,12 @@ public class MonteCarloOperation {
         return new double[][] { counts, binEdges };
     }
 
+    /**
+     * Prints a histogram to the console.
+     *
+     * @param results Array of samples
+     * @param bins    Number of bins in the histogram
+     */
     public void printHistogram(double[] results, int bins) {
         double min = DoubleStream.of(results).min().orElse(0.0);
         double max = DoubleStream.of(results).max().orElse(0.0);

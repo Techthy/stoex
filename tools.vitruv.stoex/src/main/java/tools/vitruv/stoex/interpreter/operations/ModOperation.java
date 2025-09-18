@@ -5,6 +5,8 @@ import tools.vitruv.stoex.stoex.ProbabilityFunction;
 /**
  * Implements the operation "modulo" for different kinds of operands.
  * Note, that so far only integers and doubles are supported.
+ * 
+ * @author Hammann
  */
 public class ModOperation {
 

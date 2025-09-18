@@ -68,8 +68,8 @@ public class MultOperation {
 
     public IntProbabilityMassFunction multDistributions(IntProbabilityMassFunction left,
             IntProbabilityMassFunction right) {
-        DiscreteConvolution conv = new DiscreteConvolution();
-        return conv.convolve(left, right, ProbabilityFunctionOperations.MUL);
+        ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+        return conv.combine(left, right, ProbabilityFunctionOperations.MUL);
     }
 
     // Scalar * Distribution cases for DISCRETE distributions
@@ -109,13 +109,13 @@ public class MultOperation {
             return evaluate(helper.getSamples(rightPDF), leftNum.doubleValue());
         } else if (left instanceof ProbabilityMassFunction leftPMF
                 && right instanceof ProbabilityMassFunction rightPMF) {
-            DiscreteConvolution conv = new DiscreteConvolution();
+            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
             return multDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
         } else if (left instanceof ProbabilityMassFunction leftPMF && right instanceof Integer rightInt) {
-            DiscreteConvolution conv = new DiscreteConvolution();
+            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
             return evaluate(conv.convertToPMF(leftPMF), rightInt);
         } else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
-            DiscreteConvolution conv = new DiscreteConvolution();
+            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
             return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
         }
         double leftVal = toDouble(left);

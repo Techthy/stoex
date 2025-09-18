@@ -10,7 +10,7 @@ import tools.vitruv.stoex.stoex.IntSample;
 import tools.vitruv.stoex.stoex.StoexFactory;
 
 @DisplayName("Discrete Convolution Tests")
-public class DiscreteConvolutionTest {
+public class ProbabilityMassFunctionHelperTest {
 
     @Test
     @DisplayName("Should convolve two IntPMFs")
@@ -40,8 +40,8 @@ public class DiscreteConvolutionTest {
         sample5.setProbability(0.6);
         pmf2.getSamples().add(sample5);
         // Perform convolution
-        DiscreteConvolution convolution = new DiscreteConvolution();
-        IntProbabilityMassFunction result = convolution.convolve(pmf1, pmf2, ProbabilityFunctionOperations.ADD);
+        ProbabiltyMassFunctionHelper convolution = new ProbabiltyMassFunctionHelper();
+        IntProbabilityMassFunction result = convolution.combine(pmf1, pmf2, ProbabilityFunctionOperations.ADD);
         // Validate results
         // Expected samples: (1; 0.04), (2; 0.22), (3; 0.48), (4; 0.36)
         assertEquals(4, result.getSamples().size());

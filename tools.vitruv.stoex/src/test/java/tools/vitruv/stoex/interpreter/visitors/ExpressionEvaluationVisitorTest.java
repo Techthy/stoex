@@ -181,8 +181,6 @@ class ExpressionEvaluationVisitorTest {
         Expression expr = parseHelper.parse("Normal(0.0, 1.0) + Normal(2.0, 3.0)");
         Object result = evaluator.doSwitch(expr);
 
-        System.out.println(result);
-
         assertTrue(result instanceof NormalDistribution);
         NormalDistribution resultDist = (NormalDistribution) result;
         assertEquals(2, resultDist.getMu(), 1e-10);

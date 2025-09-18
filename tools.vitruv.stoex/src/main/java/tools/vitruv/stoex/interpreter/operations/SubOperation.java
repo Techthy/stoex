@@ -80,8 +80,8 @@ public class SubOperation {
 
     public IntProbabilityMassFunction subDistributions(IntProbabilityMassFunction left,
             IntProbabilityMassFunction right) {
-        DiscreteConvolution conv = new DiscreteConvolution();
-        return conv.convolve(left, right, ProbabilityFunctionOperations.SUB);
+        ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+        return conv.combine(left, right, ProbabilityFunctionOperations.SUB);
     }
 
     // Scalar + Distribution cases for DISCRETE distributions
@@ -123,13 +123,13 @@ public class SubOperation {
             return evaluate(toDouble(leftNum), rightNorm);
         } else if (left instanceof IntProbabilityMassFunction leftPMF
                 && right instanceof IntProbabilityMassFunction rightPMF) {
-            DiscreteConvolution conv = new DiscreteConvolution();
+            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
             return subDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
         } else if (left instanceof ProbabilityMassFunction leftPMF && right instanceof Integer rightInt) {
-            DiscreteConvolution conv = new DiscreteConvolution();
+            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
             return evaluate(conv.convertToPMF(leftPMF), rightInt);
         } else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
-            DiscreteConvolution conv = new DiscreteConvolution();
+            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
             return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
         }
 

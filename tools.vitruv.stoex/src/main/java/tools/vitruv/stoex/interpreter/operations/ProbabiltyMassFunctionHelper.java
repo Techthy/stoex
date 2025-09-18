@@ -9,9 +9,19 @@ import tools.vitruv.stoex.stoex.PoissonDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.StoexFactory;
 
-public class DiscreteConvolution {
+/**
+ * Helper class to perform operations on discrete probability mass functions
+ * (PMFs).
+ * It supports convolution of two PMFs using addition, subtraction,
+ * multiplication, and division.
+ * It also provides methods to convert common discrete distributions to
+ * IntProbabilityMassFunction.
+ * 
+ * @author Hammann
+ */
+public class ProbabiltyMassFunctionHelper {
 
-    public IntProbabilityMassFunction convolve(
+    public IntProbabilityMassFunction combine(
             IntProbabilityMassFunction left,
             IntProbabilityMassFunction right,
             ProbabilityFunctionOperations operation) {
@@ -41,7 +51,7 @@ public class DiscreteConvolution {
             }
         }
 
-        // --- normalization step ---
+        // normalize
         double totalProb = result.getSamples().stream()
                 .mapToDouble(IntSample::getProbability)
                 .sum();

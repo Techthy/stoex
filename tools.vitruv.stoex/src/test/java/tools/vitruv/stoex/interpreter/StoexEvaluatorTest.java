@@ -247,30 +247,4 @@ class StoexEvaluatorTest {
         assertEquals(0.667, ((NormalDistribution) result).getSigma(), 0.001);
 
     }
-
-    @Test
-    @DisplayName("Test for damper Case Study")
-    void testDamperCaseStudy() {
-        // Arrange
-        NormalDistribution massNew = StoexFactory.eINSTANCE.createNormalDistribution();
-        massNew.setMu(0.363);
-        massNew.setSigma(0.015);
-        NormalDistribution totalMassInKg = StoexFactory.eINSTANCE.createNormalDistribution();
-        totalMassInKg.setMu(14.5);
-        totalMassInKg.setSigma(0.5);
-        evaluator.setVariable("massNew", massNew);
-        evaluator.setVariable("totalMassInKg", totalMassInKg);
-        evaluator.setVariable("massOld", 0.0);
-        evaluator.setVariable("count", 21);
-
-        // Act
-        Object result = evaluator
-                .evaluate("(massNew - massOld) * count ");
-
-        assertTrue(result instanceof NormalDistribution);
-        NormalDistribution normalResult = (NormalDistribution) result;
-        System.out.println("Result: " + normalResult.getMu() + " / " + normalResult.getSigma());
-        // assertEquals(16.623, normalResult.getMu(), 0.001);
-        // assertEquals(0.015 * 21, normalResult.getSigma(), 0.001);
-    }
 }

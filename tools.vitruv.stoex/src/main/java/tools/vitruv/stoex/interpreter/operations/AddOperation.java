@@ -15,9 +15,8 @@ import tools.vitruv.stoex.stoex.StoexFactory;
 /**
  * Implements the operation "addition" for different kinds of operands.
  *
- * closed form solutions exist for NormalDistribution, ExponentialDistribution,
- * and GammaDistribution
  *
+ * @author Hammann
  */
 public class AddOperation {
 
@@ -65,13 +64,13 @@ public class AddOperation {
 			return evaluate(leftBinomial, rightBinomial);
 		} else if (left instanceof ProbabilityMassFunction leftPMF
 				&& right instanceof ProbabilityMassFunction rightPMF) {
-			DiscreteConvolution conv = new DiscreteConvolution();
+			ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
 			return addDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
 		} else if (left instanceof ProbabilityMassFunction leftPMF && right instanceof Integer rightInt) {
-			DiscreteConvolution conv = new DiscreteConvolution();
+			ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
 			return evaluate(conv.convertToPMF(leftPMF), rightInt);
 		} else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
-			DiscreteConvolution conv = new DiscreteConvolution();
+			ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
 			return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
 		}
 		double leftVal = toDouble(left);
@@ -165,8 +164,8 @@ public class AddOperation {
 			BernoulliDistribution right) {
 		// Closed Form Solution exists only for same p
 		if (left.getP() != right.getP()) {
-			DiscreteConvolution conv = new DiscreteConvolution();
-			return conv.convolve(conv.convertToPMF(left), conv.convertToPMF(right), ProbabilityFunctionOperations.ADD);
+			ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+			return conv.combine(conv.convertToPMF(left), conv.convertToPMF(right), ProbabilityFunctionOperations.ADD);
 		}
 		BinomialDistribution result = StoexFactory.eINSTANCE.createBinomialDistribution();
 		result.setN(2);
@@ -178,8 +177,8 @@ public class AddOperation {
 			BinomialDistribution right) {
 		// Closed Form Solution exists only for same p
 		if (left.getP() != right.getP()) {
-			DiscreteConvolution conv = new DiscreteConvolution();
-			return conv.convolve(conv.convertToPMF(left), conv.convertToPMF(right), ProbabilityFunctionOperations.ADD);
+			ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+			return conv.combine(conv.convertToPMF(left), conv.convertToPMF(right), ProbabilityFunctionOperations.ADD);
 		}
 		BinomialDistribution result = StoexFactory.eINSTANCE.createBinomialDistribution();
 		result.setN(left.getN() + right.getN());
@@ -189,8 +188,8 @@ public class AddOperation {
 
 	public IntProbabilityMassFunction addDistributions(IntProbabilityMassFunction left,
 			IntProbabilityMassFunction right) {
-		DiscreteConvolution conv = new DiscreteConvolution();
-		return conv.convolve(left, right, ProbabilityFunctionOperations.ADD);
+		ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+		return conv.combine(left, right, ProbabilityFunctionOperations.ADD);
 	}
 
 	// Scalar + Distribution cases for DISCRETE distributions

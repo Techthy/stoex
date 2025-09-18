@@ -90,8 +90,8 @@ public class DivOperation {
 
     public IntProbabilityMassFunction multDistributions(IntProbabilityMassFunction left,
             IntProbabilityMassFunction right) {
-        DiscreteConvolution conv = new DiscreteConvolution();
-        return conv.convolve(left, right, ProbabilityFunctionOperations.DIV);
+        ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+        return conv.combine(left, right, ProbabilityFunctionOperations.DIV);
     }
 
     // Scalar * Distribution cases for DISCRETE distributions

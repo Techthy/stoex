@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
 
@@ -245,6 +246,16 @@ class StoexEvaluatorTest {
         assertTrue(result instanceof NormalDistribution);
         assertEquals(52.0, ((NormalDistribution) result).getMu(), 0.001);
         assertEquals(0.667, ((NormalDistribution) result).getSigma(), 0.001);
-
     }
+
+    @Test
+    @DisplayName("Should add two Exponential distributions with same lambda")
+    void testAddExponentialDistributionsSameLambda() {
+        Object result = evaluator.evaluate("Exponential(0.5) + Exponential(0.5)"); // Both with lambda = 0.5
+        assertTrue(result instanceof GammaDistribution);
+        GammaDistribution gammaResult = (GammaDistribution) result;
+        assertEquals(2, gammaResult.getAlpha(), 0.001); // Alpha should
+        assertEquals(1 / 0.5, gammaResult.getTheta(), 0.001); // Theta should be 1/lambda
+    }
+
 }

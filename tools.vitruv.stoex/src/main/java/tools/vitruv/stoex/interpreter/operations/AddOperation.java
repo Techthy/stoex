@@ -31,6 +31,7 @@ public class AddOperation {
 	public Object evaluate(Object left, Object right) {
 
 		// CONTINUOUS
+		// TODO check if switch case works in this case
 		if (left instanceof NormalDistribution leftNorm && right instanceof NormalDistribution rightNorm) {
 			return evaluate(leftNorm, rightNorm);
 		} else if (left instanceof NormalDistribution leftNorm && right instanceof Number rightNum) {

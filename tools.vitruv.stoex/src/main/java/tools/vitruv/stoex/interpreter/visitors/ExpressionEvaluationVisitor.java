@@ -2,7 +2,6 @@ package tools.vitruv.stoex.interpreter.visitors;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import tools.vitruv.stoex.interpreter.StoexEvaluator;
 import tools.vitruv.stoex.interpreter.operations.AddOperation;
@@ -48,7 +47,6 @@ import tools.vitruv.stoex.stoex.util.StoexSwitch;
 public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
 
     private final Map<String, Object> variableValues = new HashMap<>();
-    private final Random random = new Random();
 
     public ExpressionEvaluationVisitor() {
         // Initialize with common constants

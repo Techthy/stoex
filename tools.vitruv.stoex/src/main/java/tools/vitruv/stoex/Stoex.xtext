@@ -141,8 +141,11 @@ ProbabilityMassFunction:
 	BinomialDistribution |
 	PoissonDistribution |
 	DiscreteUniformDistribution |
+    DoubleProbabilityMassFunction |
     IntProbabilityMassFunction;
 
+DoubleProbabilityMassFunction:
+    'DoublePMF' '[' (samples+=NumericRealSample)+ ']';
 
 IntProbabilityMassFunction:
     'IntPMF' '[' (samples+=NumericIntSample)+ ']';

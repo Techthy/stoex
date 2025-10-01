@@ -47,6 +47,7 @@ public class StoexEvaluator {
 
     /**
      * Evaluate an expression with the given variables.
+     * TODO always return Expression if possible (for serialization)
      */
     public Object evaluate(String expressionString, Map<String, Object> variables) {
         try {

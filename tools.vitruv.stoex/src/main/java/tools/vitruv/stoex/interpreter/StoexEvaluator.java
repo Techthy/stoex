@@ -136,6 +136,30 @@ public class StoexEvaluator {
         return evaluate(expression, new HashMap<>());
     }
 
+    /**
+     * Compute the mean value of a Stoex expression given as a string
+     * 
+     * @param expressionString The Stoex expression as a string.
+     * @param variables        A map of variable names to their values.
+     * @return The mean value as a Number.
+     */
+    public Number getMean(String expressionString) {
+        try {
+            Expression expr = parseExpression(expressionString);
+            return getMean(expr);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to compute mean for expression: " + expressionString, e);
+        }
+    }
+
+    /**
+     * Compute the mean value of a Stoex expression given as a Expression AST
+     * 
+     * @param expressionString The Stoex expression as a string.
+     * @param variables        A map of variable names to their values.
+     * @return The mean value as a Number.
+     */
     public Number getMean(Expression expression) {
         ExpressionMeanVisitor meanVisitor = new ExpressionMeanVisitor();
         try {

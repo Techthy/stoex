@@ -13,6 +13,7 @@ import tools.vitruv.stoex.stoex.DiscreteUniformDistribution;
 import tools.vitruv.stoex.stoex.DoubleLiteral;
 import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.FunctionLiteral;
+import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.IfElseExpression;
 import tools.vitruv.stoex.stoex.IntLiteral;
 import tools.vitruv.stoex.stoex.NamespaceReference;
@@ -141,6 +142,12 @@ public class ExpressionMeanVisitor extends StoexSwitch<Object> {
     public Object caseExponentialDistribution(ExponentialDistribution object) {
         // Mean of Exponential distribution is 1 / lambda
         return 1.0 / object.getLambda();
+    }
+
+    @Override
+    public Object caseGammaDistribution(GammaDistribution object) {
+        // Mean of Gamma distribution is alpha * theta
+        return object.getAlpha() * object.getTheta();
     }
 
     // Arithmetic operations - throw exceptions

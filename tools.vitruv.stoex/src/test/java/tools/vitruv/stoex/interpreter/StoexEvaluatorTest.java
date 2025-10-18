@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import tools.vitruv.stoex.stoex.BoolLiteral;
 import tools.vitruv.stoex.stoex.DoubleLiteral;
+import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.Expression;
 import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.IntLiteral;
@@ -272,6 +273,50 @@ class StoexEvaluatorTest {
         GammaDistribution gammaResult = (GammaDistribution) result;
         assertEquals(2, gammaResult.getAlpha(), 0.001); // Alpha should
         assertEquals(1 / 0.5, gammaResult.getTheta(), 0.001); // Theta should be 1/lambda
+    }
+
+    // Test mean calculation for Normal Distribution
+    @Test
+    @DisplayName("Should calculate mean of Normal Distribution")
+    void testMeanNormalDistribution() {
+        NormalDistribution distribution = StoexFactory.eINSTANCE.createNormalDistribution();
+        distribution.setMu(100.0);
+        distribution.setSigma(15.0);
+        double mean = evaluator.getMean(distribution).doubleValue();
+        assertEquals(100.0, mean, 0.001);
+    }
+
+    @Test
+    @DisplayName("Should calculate mean of Gamma Distribution")
+    void testMeanGammaDistribution() {
+        GammaDistribution distribution = StoexFactory.eINSTANCE.createGammaDistribution();
+        distribution.setAlpha(3.0);
+        distribution.setTheta(2.0);
+        double mean = evaluator.getMean(distribution).doubleValue();
+        assertEquals(6.0, mean, 0.001);
+    }
+
+    @Test
+    @DisplayName("Should calculate mean of Exponential Distribution")
+    void testMeanExponentialDistribution() {
+        ExponentialDistribution distribution = StoexFactory.eINSTANCE.createExponentialDistribution();
+        distribution.setLambda(0.5);
+        double mean = evaluator.getMean(distribution).doubleValue();
+        assertEquals(2.0, mean, 0.001); // Mean should be 1/lambda = theta
+    }
+
+    @Test
+    @DisplayName("Should calculate mean of simple numeric value")
+    void testMeanSimpleNumericValue() {
+        DoubleLiteral doubleLiteral = StoexFactory.eINSTANCE.createDoubleLiteral();
+        doubleLiteral.setValue(42.0);
+        double mean = evaluator.getMean(doubleLiteral).doubleValue();
+        assertEquals(42.0, mean, 0.001);
+
+        IntLiteral intLiteral = StoexFactory.eINSTANCE.createIntLiteral();
+        intLiteral.setValue(7);
+        int meanInt = evaluator.getMean(intLiteral).intValue();
+        assertEquals(7, meanInt);
     }
 
 }

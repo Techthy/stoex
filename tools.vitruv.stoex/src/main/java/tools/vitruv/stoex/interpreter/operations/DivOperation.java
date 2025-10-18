@@ -157,6 +157,10 @@ public class DivOperation {
             return evaluate(rightIntPMF, leftInt);
         }
 
+        if (left instanceof Integer leftInt && right instanceof Integer rightInt) {
+            return evaluate((int) leftInt, (int) rightInt);
+        }
+
         double leftVal = toDouble(left);
         double rightVal = toDouble(right);
         return evaluate(leftVal, rightVal);

@@ -3,16 +3,18 @@ package tools.vitruv.stoex.interpreter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.emf.mwe2.language.mwe2.DoubleLiteral;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test to demonstrate the complete StoexEvaluator functionality
+ * Test to demonstrate the StoexEvaluator functionality
  */
 public class StoexEvaluatorShowcaseTest {
 
-    @Test
+    // Disabled as nothing is asserted here; this is just a showcase
     @Disabled
+    @Test
     public void showcaseCompleteIntegration() {
         StoexEvaluator evaluator = new StoexEvaluator();
 
@@ -46,13 +48,13 @@ public class StoexEvaluatorShowcaseTest {
         vars.put("value", 25.0);
         System.out.println("   With angle=π/4, value=25.0:");
         System.out.println("   sin(angle) = "
-                + String.format("%.3f", (Double) evaluator.evaluate("sin(angle)", vars)));
+                + String.format("%.3f", (DoubleLiteral) evaluator.evaluate("sin(angle)", vars)));
         System.out.println("   cos(angle) = "
-                + String.format("%.3f", (Double) evaluator.evaluate("cos(angle)", vars)));
+                + String.format("%.3f", (DoubleLiteral) evaluator.evaluate("cos(angle)", vars)));
         System.out.println("   sqrt(value) = " + evaluator.evaluate("sqrt(value)", vars));
         System.out.println("   abs(-10) = " + evaluator.evaluate("abs(-10)"));
         System.out.println("   max(x, y) = " + evaluator.evaluate("max(x, y)", vars));
-        System.out.println("   PI = " + String.format("%.6f", (Double) evaluator.evaluate("PI")));
+        System.out.println("   PI = " + String.format("%.6f", (DoubleLiteral) evaluator.evaluate("PI")));
 
         // 4. Probability distributions
         System.out.println("\n4. Probability Distributions:");
@@ -67,7 +69,8 @@ public class StoexEvaluatorShowcaseTest {
             System.out.println("     Bernoulli(p) = " + evaluator.evaluate("Bernoulli(p)", vars));
             System.out.println("     Binomial(n,p) = " + evaluator.evaluate("Binomial(n, p)", vars));
             System.out.println("     Normal(mu,sigma) = " +
-                    String.format("%.3f", (Double) evaluator.evaluate("Normal(mu, sigma)", vars)));
+                    String.format("%.3f",
+                            (DoubleLiteral) evaluator.evaluate("Normal(mu, sigma)", vars)));
         }
 
         // 5. Persistent variables
@@ -92,7 +95,8 @@ public class StoexEvaluatorShowcaseTest {
                 "cpuUsage > alertThreshold OR memUsage > alertThreshold OR diskUsage > alertThreshold",
                 perfVars));
         System.out.println("   Health Score: " + String.format("%.1f%%",
-                (Double) evaluator.evaluate("(1.0 - (cpuUsage + memUsage + diskUsage) / 3.0) * 100",
+                (DoubleLiteral) evaluator.evaluate(
+                        "(1.0 - (cpuUsage + memUsage + diskUsage) / 3.0) * 100",
                         perfVars)));
 
         System.out.println("\n8. Reliability Analysis:");
@@ -103,9 +107,10 @@ public class StoexEvaluatorShowcaseTest {
 
         System.out.println("   Component reliabilities: A=99%, B=95%, C=98%");
         System.out.println("   Series reliability: " + String.format("%.4f",
-                (Double) evaluator.evaluate("componentA * componentB * componentC", relVars)));
+                (DoubleLiteral) evaluator.evaluate("componentA * componentB * componentC", relVars)));
         System.out.println("   Parallel (A||B) reliability: " + String.format("%.4f",
-                (Double) evaluator.evaluate("1.0 - (1.0 - componentA) * (1.0 - componentB)", relVars)));
+                (DoubleLiteral) evaluator.evaluate("1.0 - (1.0 - componentA) * (1.0 - componentB)",
+                        relVars)));
 
         System.out.println("\n=== Showcase Complete - All functionality working! ===");
     }

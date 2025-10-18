@@ -11,9 +11,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import tools.vitruv.stoex.stoex.BoolLiteral;
+import tools.vitruv.stoex.stoex.DoubleLiteral;
+import tools.vitruv.stoex.stoex.Expression;
 import tools.vitruv.stoex.stoex.GammaDistribution;
+import tools.vitruv.stoex.stoex.IntLiteral;
 import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
+import tools.vitruv.stoex.stoex.StringLiteral;
 
 @DisplayName("Stoex Evaluator Integration Tests")
 class StoexEvaluatorTest {
@@ -28,36 +33,37 @@ class StoexEvaluatorTest {
     @Test
     @DisplayName("Should evaluate simple expressions")
     void testSimpleExpressions() {
-        assertEquals(42, evaluator.evaluate("42"));
-        assertEquals(3.14, evaluator.evaluate("3.14"));
-        assertEquals(true, evaluator.evaluate("true"));
-        assertEquals("hello", evaluator.evaluate("\"hello\""));
+
+        assertEquals(42, ((IntLiteral) evaluator.evaluate("42")).getValue());
+        assertEquals(3.14, ((DoubleLiteral) evaluator.evaluate("3.14")).getValue());
+        assertEquals(true, ((BoolLiteral) evaluator.evaluate("true")).isValue());
+        assertEquals("hello", ((StringLiteral) evaluator.evaluate("\"hello\"")).getValue());
     }
 
     @Test
     @DisplayName("Should evaluate arithmetic expressions")
     void testArithmeticExpressions() {
-        assertEquals(7.0, evaluator.evaluate("3 + 4"));
-        assertEquals(14.0, evaluator.evaluate("2 + 3 * 4"));
-        assertEquals(20.0, evaluator.evaluate("(2 + 3) * 4"));
-        assertEquals(8.0, evaluator.evaluate("2 ^ 3"));
+        assertEquals(7, ((IntLiteral) evaluator.evaluate("3 + 4")).getValue());
+        assertEquals(14, ((IntLiteral) evaluator.evaluate("2 + 3 * 4")).getValue());
+        assertEquals(20, ((IntLiteral) evaluator.evaluate("(2 + 3) * 4")).getValue());
+        assertEquals(8, ((IntLiteral) evaluator.evaluate("2 ^ 3")).getValue());
     }
 
     @Test
     @DisplayName("Should evaluate boolean expressions")
     void testBooleanExpressions() {
-        assertEquals(false, evaluator.evaluate("true AND false"));
-        assertEquals(true, evaluator.evaluate("true OR false"));
-        assertEquals(true, evaluator.evaluate("5 > 3"));
-        assertEquals(false, evaluator.evaluate("NOT true"));
+        assertEquals(false, ((BoolLiteral) evaluator.evaluate("true AND false")).isValue());
+        assertEquals(true, ((BoolLiteral) evaluator.evaluate("true OR false")).isValue());
+        assertEquals(true, ((BoolLiteral) evaluator.evaluate("5 > 3")).isValue());
+        assertEquals(false, ((BoolLiteral) evaluator.evaluate("NOT true")).isValue());
     }
 
     @Test
     @DisplayName("Should evaluate if-else expressions")
     void testIfElseExpressions() {
-        assertEquals(42, evaluator.evaluate("true ? 42 : 24"));
-        assertEquals(24, evaluator.evaluate("false ? 42 : 24"));
-        assertEquals(42, evaluator.evaluate("5 > 3 ? 42 : 24"));
+        assertEquals(42, ((IntLiteral) evaluator.evaluate("true ? 42 : 24")).getValue());
+        assertEquals(24, ((IntLiteral) evaluator.evaluate("false ? 42 : 24")).getValue());
+        assertEquals(42, ((IntLiteral) evaluator.evaluate("5 > 3 ? 42 : 24")).getValue());
     }
 
     @Test
@@ -67,8 +73,8 @@ class StoexEvaluatorTest {
         variables.put("x", 10);
         variables.put("y", 20);
 
-        assertEquals(30.0, evaluator.evaluate("x + y", variables));
-        assertEquals(50.0, evaluator.evaluate("x + y * 2", variables));
+        assertEquals(30, ((IntLiteral) evaluator.evaluate("x + y", variables)).getValue());
+        assertEquals(50, ((IntLiteral) evaluator.evaluate("x + y * 2", variables)).getValue());
     }
 
     @Test
@@ -78,30 +84,40 @@ class StoexEvaluatorTest {
         evaluator.setVariable("height", 10);
 
         // Variables persist across evaluations
-        double area = (Double) evaluator.evaluate("PI * radius ^ 2");
-        double volume = (Double) evaluator.evaluate("PI * radius ^ 2 * height");
+        Expression area = evaluator.evaluate("PI * radius ^ 2");
+        Expression volume = evaluator.evaluate("PI * radius ^ 2 * height");
 
-        assertEquals(Math.PI * 25, area, 1e-10);
-        assertEquals(Math.PI * 25 * 10, volume, 1e-10);
+        assertTrue(area instanceof DoubleLiteral);
+        assertTrue(volume instanceof DoubleLiteral);
+
+        double areaValue = ((DoubleLiteral) area).getValue();
+        double volumeValue = ((DoubleLiteral) volume).getValue();
+        assertEquals(Math.PI * 25, areaValue, 1e-10);
+        assertEquals(Math.PI * 25 * 10, volumeValue, 1e-10);
     }
 
     @Test
     @DisplayName("Should evaluate built-in functions")
     void testBuiltInFunctions() {
-        assertEquals(4.0, evaluator.evaluate("sqrt(16)"));
-        assertEquals(5.0, evaluator.evaluate("abs(-5)"));
-        assertEquals(10.0, evaluator.evaluate("max(5, 10)"));
-        assertEquals(5.0, evaluator.evaluate("min(5, 10)"));
+        assertEquals(4.0, ((DoubleLiteral) evaluator.evaluate("sqrt(16)")).getValue());
+        assertEquals(5.0, ((DoubleLiteral) evaluator.evaluate("abs(-5)")).getValue());
+        assertEquals(10.0, ((DoubleLiteral) evaluator.evaluate("max(5, 10)")).getValue());
+        assertEquals(5.0, ((DoubleLiteral) evaluator.evaluate("min(5, 10)")).getValue());
     }
 
     @Test
     @DisplayName("Should evaluate built-in constants")
     void testBuiltInConstants() {
-        double piResult = (Double) evaluator.evaluate("PI");
-        double eResult = (Double) evaluator.evaluate("E");
+        Expression piResult = evaluator.evaluate("PI");
+        Expression eResult = evaluator.evaluate("E");
 
-        assertEquals(Math.PI, piResult, 1e-10);
-        assertEquals(Math.E, eResult, 1e-10);
+        assertTrue(piResult instanceof DoubleLiteral);
+        assertTrue(eResult instanceof DoubleLiteral);
+        double piValue = ((DoubleLiteral) piResult).getValue();
+        double eValue = ((DoubleLiteral) eResult).getValue();
+
+        assertEquals(Math.PI, piValue, 1e-10);
+        assertEquals(Math.E, eValue, 1e-10);
     }
 
     @Test
@@ -111,13 +127,13 @@ class StoexEvaluatorTest {
         evaluator.setVariable("y", 3);
 
         // Complex mathematical expression
-        Object result = evaluator.evaluate("(x ^ 2 + y ^ 2) > 10 ? sqrt(x ^ 2 + y ^ 2) : x + y");
-        assertEquals(Math.sqrt(13), (Double) result, 0.001);
+        Expression result = evaluator.evaluate("(x ^ 2 + y ^ 2) > 10 ? sqrt(x ^ 2 + y ^ 2) : x + y");
+        assertEquals(Math.sqrt(13), ((DoubleLiteral) result).getValue(), 0.001);
 
         // Complex conditional with functions
         evaluator.setVariable("temperature", 25);
-        Object weatherResult = evaluator.evaluate("temperature > 20 ? \"warm\" : \"cold\"");
-        assertEquals("warm", weatherResult);
+        Expression weatherResult = evaluator.evaluate("temperature > 20 ? \"warm\" : \"cold\"");
+        assertEquals("warm", ((StringLiteral) weatherResult).getValue());
     }
 
     @Test
@@ -164,23 +180,23 @@ class StoexEvaluatorTest {
         // Scenario 1: Mathematical calculations
         evaluator.setVariable("a", 3);
         evaluator.setVariable("b", 4);
-        double hypotenuse = (Double) evaluator.evaluate("sqrt(a ^ 2 + b ^ 2)");
+        double hypotenuse = ((DoubleLiteral) evaluator.evaluate("sqrt(a ^ 2 + b ^ 2)")).getValue();
         assertEquals(5.0, hypotenuse, 1e-10);
 
         // Scenario 2: Business logic
         evaluator.setVariable("price", 100);
         evaluator.setVariable("discount", 0.2);
-        double finalPrice = (Double) evaluator.evaluate("price * (1 - discount)");
+        double finalPrice = ((DoubleLiteral) evaluator.evaluate("price * (1 - discount)")).getValue();
         assertEquals(80.0, finalPrice, 1e-10);
 
         // Scenario 3: Conditional logic
         evaluator.setVariable("age", 25);
-        String category = (String) evaluator.evaluate("age >= 18 ? \"adult\" : \"minor\"");
+        String category = ((StringLiteral) evaluator.evaluate("age >= 18 ? \"adult\" : \"minor\"")).getValue();
         assertEquals("adult", category);
 
         // Scenario 4: Complex mathematical formula
         evaluator.setVariable("r", 5.0);
-        double sphereVolume = (Double) evaluator.evaluate("(4.0 / 3.0) * PI * r ^ 3");
+        double sphereVolume = ((DoubleLiteral) evaluator.evaluate("(4.0 / 3.0) * PI * r ^ 3")).getValue();
         assertEquals((4.0 / 3.0) * Math.PI * 125, sphereVolume, 1e-8);
     }
 
@@ -189,7 +205,7 @@ class StoexEvaluatorTest {
     @Test
     @DisplayName("Should add Normal distribution")
     void testAddNormalDistribution() {
-        Object result = evaluator.evaluate("Normal(196.0, 15.0) + Normal(0.0, 1.0)");
+        Expression result = evaluator.evaluate("Normal(196.0, 15.0) + Normal(0.0, 1.0)");
         assertTrue(result instanceof NormalDistribution);
         assertEquals(((NormalDistribution) result).getMu(), 196.0, 0.001);
         assertEquals(((NormalDistribution) result).getSigma(), Math.sqrt(15.0 * 15.0 + 1.0), 0.001);
@@ -199,7 +215,7 @@ class StoexEvaluatorTest {
     @DisplayName("Should add Normal distribution, one as Variable")
     void testAddNormalDistributionWithVariable() {
         evaluator.setVariable("var1", "Normal(196.0, 15.0)");
-        Object result = evaluator.evaluate("var1 + Normal(0.0, 1.0)");
+        Expression result = evaluator.evaluate("var1 + Normal(0.0, 1.0)");
         assertTrue(result instanceof NormalDistribution);
         assertEquals(((NormalDistribution) result).getMu(), 196.0, 0.001);
         assertEquals(((NormalDistribution) result).getSigma(), Math.sqrt(15.0 * 15.0 + 1.0), 0.001);
@@ -210,7 +226,7 @@ class StoexEvaluatorTest {
     void testAddNormalDistributionWithVariables() {
         evaluator.setVariable("var1", "Normal(196.0, 15.0)");
         evaluator.setVariable("var2", "Normal(0.0, 1.0)");
-        Object result = evaluator.evaluate("var1 + var2");
+        Expression result = evaluator.evaluate("var1 + var2");
         assertTrue(result instanceof NormalDistribution);
         assertEquals(((NormalDistribution) result).getMu(), 196.0, 0.001);
         assertEquals(((NormalDistribution) result).getSigma(), Math.sqrt(15.0 * 15.0 + 1.0), 0.001);
@@ -242,7 +258,7 @@ class StoexEvaluatorTest {
         evaluator.setVariable("throatWidth", 42);
         evaluator.setVariable("newValue", newValue);
 
-        Object result = evaluator.evaluate("throatWidth + newValue - oldValue");
+        Expression result = evaluator.evaluate("throatWidth + newValue - oldValue");
         assertTrue(result instanceof NormalDistribution);
         assertEquals(52.0, ((NormalDistribution) result).getMu(), 0.001);
         assertEquals(0.667, ((NormalDistribution) result).getSigma(), 0.001);
@@ -251,7 +267,7 @@ class StoexEvaluatorTest {
     @Test
     @DisplayName("Should add two Exponential distributions with same lambda")
     void testAddExponentialDistributionsSameLambda() {
-        Object result = evaluator.evaluate("Exponential(0.5) + Exponential(0.5)"); // Both with lambda = 0.5
+        Expression result = evaluator.evaluate("Exponential(0.5) + Exponential(0.5)"); // Both with lambda = 0.5
         assertTrue(result instanceof GammaDistribution);
         GammaDistribution gammaResult = (GammaDistribution) result;
         assertEquals(2, gammaResult.getAlpha(), 0.001); // Alpha should

@@ -19,6 +19,10 @@ public class ModOperation {
     }
 
     public Object evaluate(Object left, Object right) {
+        if (left instanceof Integer leftInt && right instanceof Integer rightInt) {
+            return evaluate((int) leftInt, (int) rightInt);
+        }
+
         if (left instanceof ProbabilityFunction || right instanceof ProbabilityFunction) {
             throw new IllegalArgumentException("Modulo operation is not defined for ProbabilityFunctions.");
         }

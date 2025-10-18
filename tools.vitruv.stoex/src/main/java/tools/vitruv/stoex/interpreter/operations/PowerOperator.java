@@ -33,6 +33,10 @@ public class PowerOperator {
             return evaluate(helper.getSamples(basePDF), expNum);
         }
 
+        if (base instanceof Integer baseInt && exponent instanceof Integer expInt) {
+            return evaluate((int) baseInt, (int) expInt);
+        }
+
         return evaluate(toDouble(base), toDouble(exponent));
     }
 

@@ -133,6 +133,10 @@ public class SubOperation {
             return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
         }
 
+        if (left instanceof Integer leftInt && right instanceof Integer rightInt) {
+            return evaluate((int) leftInt, (int) rightInt);
+        }
+
         double leftVal = toDouble(left);
         double rightVal = toDouble(right);
         return evaluate(leftVal, rightVal);

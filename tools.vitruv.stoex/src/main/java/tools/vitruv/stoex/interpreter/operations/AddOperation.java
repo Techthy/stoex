@@ -20,6 +20,10 @@ import tools.vitruv.stoex.stoex.StoexFactory;
  */
 public class AddOperation {
 
+	public int evaluate(Integer left, Integer right) {
+		return left + right;
+	}
+
 	public int evaluate(int left, int right) {
 		return left + right;
 	}
@@ -74,6 +78,11 @@ public class AddOperation {
 			ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
 			return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
 		}
+		// ints
+		if (left instanceof Integer leftInt && right instanceof Integer rightInt) {
+			return evaluate(leftInt, rightInt);
+		}
+
 		double leftVal = toDouble(left);
 		double rightVal = toDouble(right);
 		return evaluate(leftVal, rightVal);

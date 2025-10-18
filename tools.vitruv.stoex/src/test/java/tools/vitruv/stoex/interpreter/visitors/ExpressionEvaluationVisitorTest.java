@@ -51,11 +51,11 @@ class ExpressionEvaluationVisitorTest {
     @Test
     @DisplayName("Should evaluate arithmetic operations")
     void testArithmeticOperations() throws Exception {
-        assertEquals(7.0, evaluator.doSwitch(parseHelper.parse("3 + 4")));
-        assertEquals(14.0, evaluator.doSwitch(parseHelper.parse("2 + 3 * 4")));
-        assertEquals(20.0, evaluator.doSwitch(parseHelper.parse("(2 + 3) * 4")));
-        assertEquals(2.0, evaluator.doSwitch(parseHelper.parse("10 / 2 - 3")));
-        assertEquals(8.0, evaluator.doSwitch(parseHelper.parse("2 ^ 3")));
+        assertEquals(7, evaluator.doSwitch(parseHelper.parse("3 + 4")));
+        assertEquals(14, evaluator.doSwitch(parseHelper.parse("2 + 3 * 4")));
+        assertEquals(20, evaluator.doSwitch(parseHelper.parse("(2 + 3) * 4")));
+        assertEquals(2, evaluator.doSwitch(parseHelper.parse("10 / 2 - 3")));
+        assertEquals(8, evaluator.doSwitch(parseHelper.parse("2 ^ 3")));
     }
 
     @Test
@@ -93,8 +93,8 @@ class ExpressionEvaluationVisitorTest {
         evaluator.setVariable("y", 20);
 
         assertEquals(10, evaluator.doSwitch(parseHelper.parse("x")));
-        assertEquals(30.0, evaluator.doSwitch(parseHelper.parse("x + y")));
-        assertEquals(50.0, evaluator.doSwitch(parseHelper.parse("x + y * 2")));
+        assertEquals(30, evaluator.doSwitch(parseHelper.parse("x + y")));
+        assertEquals(50, evaluator.doSwitch(parseHelper.parse("x + y * 2")));
     }
 
     @Test
@@ -123,9 +123,9 @@ class ExpressionEvaluationVisitorTest {
     @Test
     @DisplayName("Should handle parentheses correctly")
     void testParentheses() throws Exception {
-        assertEquals(20.0, evaluator.doSwitch(parseHelper.parse("(2 + 3) * 4")));
-        assertEquals(14.0, evaluator.doSwitch(parseHelper.parse("2 + (3 * 4)")));
-        assertEquals(10.0, evaluator.doSwitch(parseHelper.parse("((2 + 3) * 4) / 2")));
+        assertEquals(20, evaluator.doSwitch(parseHelper.parse("(2 + 3) * 4")));
+        assertEquals(14, evaluator.doSwitch(parseHelper.parse("2 + (3 * 4)")));
+        assertEquals(10, evaluator.doSwitch(parseHelper.parse("((2 + 3) * 4) / 2")));
     }
 
     @Test

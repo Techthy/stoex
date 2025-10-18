@@ -338,10 +338,6 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
         }
     }
 
-    private Object evaluatePowerOperation(Object base, Object exponent) {
-        return Math.pow(toDouble(base), toDouble(exponent));
-    }
-
     private Object evaluateCompareOperation(Object left, Object right, CompareOperations operation) {
         double leftVal = toDouble(left);
         double rightVal = toDouble(right);
@@ -366,15 +362,15 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
 
     // Type conversion utilities
     private double toDouble(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
+        if (value instanceof Number number) {
+            return number.doubleValue();
         }
-        if (value instanceof Boolean) {
-            return ((Boolean) value) ? 1.0 : 0.0;
+        if (value instanceof Boolean aBoolean) {
+            return aBoolean ? 1.0 : 0.0;
         }
-        if (value instanceof String) {
+        if (value instanceof String string) {
             try {
-                return Double.parseDouble((String) value);
+                return Double.parseDouble(string);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Cannot convert string to double: " + value);
             }
@@ -382,31 +378,17 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
         throw new IllegalArgumentException("Cannot convert " + value + " to double");
     }
 
-    private int toInt(Object value) {
-        if (value instanceof Number) {
-            return ((Number) value).intValue();
-        }
-        throw new IllegalArgumentException("Cannot convert " + value + " to int");
-    }
-
     private boolean toBoolean(Object value) {
-        if (value instanceof Boolean) {
-            return (Boolean) value;
+        if (value instanceof Boolean aBoolean) {
+            return aBoolean;
         }
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue() != 0.0;
+        if (value instanceof Number number) {
+            return number.doubleValue() != 0.0;
         }
-        if (value instanceof String) {
-            String str = (String) value;
+        if (value instanceof String str) {
             return "true".equalsIgnoreCase(str) || "1".equals(str);
         }
         throw new IllegalArgumentException("Cannot convert " + value + " to boolean");
-    }
-
-    private void validateProbability(double p) {
-        if (p < 0 || p > 1) {
-            throw new IllegalArgumentException("Probability must be between 0 and 1, got: " + p);
-        }
     }
 
 }

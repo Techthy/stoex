@@ -68,7 +68,7 @@ public class MultOperation {
 
     public IntProbabilityMassFunction multDistributions(IntProbabilityMassFunction left,
             IntProbabilityMassFunction right) {
-        ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+        ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
         return conv.combine(left, right, ProbabilityFunctionOperations.MUL);
     }
 
@@ -109,13 +109,13 @@ public class MultOperation {
             return evaluate(helper.getSamples(rightPDF), leftNum.doubleValue());
         } else if (left instanceof ProbabilityMassFunction leftPMF
                 && right instanceof ProbabilityMassFunction rightPMF) {
-            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+            ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
             return multDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
         } else if (left instanceof ProbabilityMassFunction leftPMF && right instanceof Integer rightInt) {
-            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+            ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
             return evaluate(conv.convertToPMF(leftPMF), rightInt);
         } else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
-            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+            ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
             return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
         }
 

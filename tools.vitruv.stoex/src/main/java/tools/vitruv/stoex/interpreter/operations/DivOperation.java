@@ -90,7 +90,7 @@ public class DivOperation {
 
     public IntProbabilityMassFunction multDistributions(IntProbabilityMassFunction left,
             IntProbabilityMassFunction right) {
-        ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+        ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
         return conv.combine(left, right, ProbabilityFunctionOperations.DIV);
     }
 

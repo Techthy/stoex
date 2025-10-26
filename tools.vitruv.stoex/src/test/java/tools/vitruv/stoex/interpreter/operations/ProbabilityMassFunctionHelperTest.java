@@ -40,7 +40,7 @@ public class ProbabilityMassFunctionHelperTest {
         sample5.setProbability(0.6);
         pmf2.getSamples().add(sample5);
         // Perform convolution
-        ProbabiltyMassFunctionHelper convolution = new ProbabiltyMassFunctionHelper();
+        ProbabilityMassFunctionHelper convolution = new ProbabilityMassFunctionHelper();
         IntProbabilityMassFunction result = convolution.combine(pmf1, pmf2, ProbabilityFunctionOperations.ADD);
         // Validate results
         // Expected samples: (1; 0.04), (2; 0.22), (3; 0.48), (4; 0.36)

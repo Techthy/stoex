@@ -5,6 +5,7 @@ import java.util.Map;
 
 import tools.vitruv.stoex.interpreter.StoexEvaluator;
 import tools.vitruv.stoex.interpreter.operations.AddOperation;
+import tools.vitruv.stoex.interpreter.operations.Dispatcher;
 import tools.vitruv.stoex.interpreter.operations.DivOperation;
 import tools.vitruv.stoex.interpreter.operations.ModOperation;
 import tools.vitruv.stoex.interpreter.operations.MultOperation;
@@ -309,8 +310,8 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
     private Object evaluateTermOperation(Object left, Object right, TermOperations operation) {
         switch (operation) {
             case ADD -> {
-                AddOperation addOp = new AddOperation();
-                return addOp.evaluate(left, right);
+                Dispatcher dispatcher = new Dispatcher(new AddOperation());
+                return dispatcher.dispatch(left, right);
             }
             case SUB -> {
                 SubOperation subOp = new SubOperation();

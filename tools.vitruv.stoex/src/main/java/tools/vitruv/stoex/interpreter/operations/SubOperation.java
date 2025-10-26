@@ -80,7 +80,7 @@ public class SubOperation {
 
     public IntProbabilityMassFunction subDistributions(IntProbabilityMassFunction left,
             IntProbabilityMassFunction right) {
-        ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+        ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
         return conv.combine(left, right, ProbabilityFunctionOperations.SUB);
     }
 
@@ -123,13 +123,13 @@ public class SubOperation {
             return evaluate(toDouble(leftNum), rightNorm);
         } else if (left instanceof IntProbabilityMassFunction leftPMF
                 && right instanceof IntProbabilityMassFunction rightPMF) {
-            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+            ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
             return subDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
         } else if (left instanceof ProbabilityMassFunction leftPMF && right instanceof Integer rightInt) {
-            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+            ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
             return evaluate(conv.convertToPMF(leftPMF), rightInt);
         } else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
-            ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+            ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
             return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
         }
 

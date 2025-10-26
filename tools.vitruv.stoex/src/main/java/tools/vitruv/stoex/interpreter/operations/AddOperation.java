@@ -18,78 +18,32 @@ import tools.vitruv.stoex.stoex.StoexFactory;
  *
  * @author Hammann
  */
-public class AddOperation {
+public class AddOperation implements Operation {
 
 	public int evaluate(Integer left, Integer right) {
 		return left + right;
 	}
 
+	@Override
 	public int evaluate(int left, int right) {
 		return left + right;
 	}
 
+	@Override
 	public double evaluate(double left, double right) {
 		return left + right;
 	}
 
+	@Override
 	public Object evaluate(Object left, Object right) {
-
-		// CONTINUOUS
-		// TODO check if switch case works in this case
-		if (left instanceof NormalDistribution leftNorm && right instanceof NormalDistribution rightNorm) {
-			return evaluate(leftNorm, rightNorm);
-		} else if (left instanceof NormalDistribution leftNorm && right instanceof Number rightNum) {
-			return evaluate(leftNorm, rightNum.doubleValue());
-		} else if (left instanceof Number leftNum && right instanceof NormalDistribution rightNorm) {
-			return evaluate(leftNum.doubleValue(), rightNorm);
-		} else if (left instanceof ExponentialDistribution leftExp
-				&& right instanceof ExponentialDistribution rightExp) {
-			return evaluate(leftExp, rightExp);
-		} else if (left instanceof GammaDistribution leftGamma && right instanceof GammaDistribution rightGamma) {
-			return evaluate(leftGamma, rightGamma);
-		} else if (left instanceof ProbabilityDensityFunction leftPDF
-				&& right instanceof ProbabilityDensityFunction rightPDF) {
-			SampleHelper helper = new SampleHelper();
-			return addDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
-		} else if (left instanceof ProbabilityDensityFunction leftPDF && right instanceof Number rightNum) {
-			SampleHelper helper = new SampleHelper();
-			return evaluate(helper.getSamples(leftPDF), rightNum.doubleValue());
-		} else if (left instanceof Number leftNum && right instanceof ProbabilityDensityFunction rightPDF) {
-			SampleHelper helper = new SampleHelper();
-			return evaluate(leftNum.doubleValue(), helper.getSamples(rightPDF));
-			// DISCRETE
-		} else if (left instanceof PoissonDistribution leftPoisson
-				&& right instanceof PoissonDistribution rightPoisson) {
-			return evaluate(leftPoisson, rightPoisson);
-		} else if (left instanceof BernoulliDistribution leftBernoulli
-				&& right instanceof BernoulliDistribution rightBernoulli) {
-			return evaluate(leftBernoulli, rightBernoulli);
-		} else if (left instanceof BinomialDistribution leftBinomial
-				&& right instanceof BinomialDistribution rightBinomial) {
-			return evaluate(leftBinomial, rightBinomial);
-		} else if (left instanceof ProbabilityMassFunction leftPMF
-				&& right instanceof ProbabilityMassFunction rightPMF) {
-			ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
-			return addDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
-		} else if (left instanceof ProbabilityMassFunction leftPMF && right instanceof Integer rightInt) {
-			ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
-			return evaluate(conv.convertToPMF(leftPMF), rightInt);
-		} else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
-			ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
-			return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
-		}
-		// ints
-		if (left instanceof Integer leftInt && right instanceof Integer rightInt) {
-			return evaluate(leftInt, rightInt);
-		}
-
 		double leftVal = toDouble(left);
 		double rightVal = toDouble(right);
-		return evaluate(leftVal, rightVal);
+		return leftVal + rightVal;
 	}
 
 	// Closed form solution for CONTINUOUS distributions
 
+	@Override
 	public NormalDistribution evaluate(NormalDistribution left, NormalDistribution right) {
 		NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
 		result.setMu(left.getMu() + right.getMu());
@@ -98,11 +52,12 @@ public class AddOperation {
 
 	}
 
+	@Override
 	public ProbabilityDensityFunction evaluate(ExponentialDistribution left, ExponentialDistribution right) {
 		// Closed Form Solution exists only for same lambda
 		if (left.getLambda() != right.getLambda()) {
 			SampleHelper helper = new SampleHelper();
-			return addDistributions(helper.getSamples(left), helper.getSamples(right));
+			return evaluate(helper.getSamples(left), helper.getSamples(right));
 		}
 
 		GammaDistribution result = StoexFactory.eINSTANCE.createGammaDistribution();
@@ -111,7 +66,8 @@ public class AddOperation {
 		return result;
 	}
 
-	public SampledDistribution addDistributions(double[] samplesLeft, double[] samplesRight) {
+	@Override
+	public SampledDistribution evaluate(double[] samplesLeft, double[] samplesRight) {
 
 		MonteCarloOperation op = new MonteCarloOperation();
 		double[] combinedSamples = op.evaluateTermOperation(samplesLeft, samplesRight, 10000,
@@ -124,11 +80,12 @@ public class AddOperation {
 		return result;
 	}
 
+	@Override
 	public ProbabilityDensityFunction evaluate(GammaDistribution left, GammaDistribution right) {
 		// Closed Form Solution exists only for same theta
 		if (left.getTheta() != right.getTheta()) {
 			SampleHelper helper = new SampleHelper();
-			return addDistributions(helper.getSamples(left), helper.getSamples(right));
+			return evaluate(helper.getSamples(left), helper.getSamples(right));
 		}
 
 		GammaDistribution result = StoexFactory.eINSTANCE.createGammaDistribution();
@@ -139,6 +96,7 @@ public class AddOperation {
 
 	// Scalar + Distribution cases for CONTINUOUS distributions
 
+	@Override
 	public NormalDistribution evaluate(NormalDistribution left, double right) {
 		NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
 		result.setMu(left.getMu() + right);
@@ -146,10 +104,12 @@ public class AddOperation {
 		return result;
 	}
 
+	@Override
 	public NormalDistribution evaluate(double left, NormalDistribution right) {
 		return evaluate(right, left);
 	}
 
+	@Override
 	public SampledDistribution evaluate(double[] samplesLeft, double right) {
 		SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
 		for (double d : samplesLeft) {
@@ -158,23 +118,26 @@ public class AddOperation {
 		return result;
 	}
 
+	@Override
 	public SampledDistribution evaluate(double left, double[] samplesRight) {
 		return evaluate(samplesRight, left);
 	}
 
 	// Closed form solution for DISCRETE distributions
 
+	@Override
 	public PoissonDistribution evaluate(PoissonDistribution left, PoissonDistribution right) {
 		PoissonDistribution result = StoexFactory.eINSTANCE.createPoissonDistribution();
 		result.setLambda(left.getLambda() + right.getLambda());
 		return result;
 	}
 
+	@Override
 	public ProbabilityMassFunction evaluate(BernoulliDistribution left,
 			BernoulliDistribution right) {
 		// Closed Form Solution exists only for same p
 		if (left.getP() != right.getP()) {
-			ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+			ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
 			return conv.combine(conv.convertToPMF(left), conv.convertToPMF(right), ProbabilityFunctionOperations.ADD);
 		}
 		BinomialDistribution result = StoexFactory.eINSTANCE.createBinomialDistribution();
@@ -183,11 +146,12 @@ public class AddOperation {
 		return result;
 	}
 
+	@Override
 	public ProbabilityMassFunction evaluate(BinomialDistribution left,
 			BinomialDistribution right) {
 		// Closed Form Solution exists only for same p
 		if (left.getP() != right.getP()) {
-			ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+			ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
 			return conv.combine(conv.convertToPMF(left), conv.convertToPMF(right), ProbabilityFunctionOperations.ADD);
 		}
 		BinomialDistribution result = StoexFactory.eINSTANCE.createBinomialDistribution();
@@ -196,14 +160,15 @@ public class AddOperation {
 		return result;
 	}
 
-	public IntProbabilityMassFunction addDistributions(IntProbabilityMassFunction left,
+	@Override
+	public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction left,
 			IntProbabilityMassFunction right) {
-		ProbabiltyMassFunctionHelper conv = new ProbabiltyMassFunctionHelper();
+		ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
 		return conv.combine(left, right, ProbabilityFunctionOperations.ADD);
 	}
 
 	// Scalar + Distribution cases for DISCRETE distributions
-
+	@Override
 	public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction left, int right) {
 		IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
 		for (var sample : left.getSamples()) {
@@ -215,6 +180,7 @@ public class AddOperation {
 		return result;
 	}
 
+	@Override
 	public IntProbabilityMassFunction evaluate(int left, IntProbabilityMassFunction right) {
 		return evaluate(right, left);
 	}

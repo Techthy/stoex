@@ -19,7 +19,7 @@ import tools.vitruv.stoex.stoex.StoexFactory;
  * 
  * @author Hammann
  */
-public class ProbabiltyMassFunctionHelper {
+public class ProbabilityMassFunctionHelper {
 
     public IntProbabilityMassFunction combine(
             IntProbabilityMassFunction left,

@@ -203,6 +203,8 @@ class ExpressionEvaluationVisitorTest {
         assertEquals(1.0, resultDist.getTheta(), 1e-10);
     }
 
+    // Disabled because of probabilistic outcome - may fail occasionally but should
+    // pass most of the time
     @Test
     @Disabled
     @DisplayName("Should evaluate addition of two exponential distributions with different lambda")

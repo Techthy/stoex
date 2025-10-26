@@ -81,6 +81,8 @@ public class AddOperationTest {
         assertEquals(1 / 0.5, gammaResult.getTheta(), 0.001);
     }
 
+    // Disabled because of probabilistic outcome - may fail occasionally but should
+    // pass most of the time
     @Test
     @Disabled
     @DisplayName("Should add two Exponential Distributions with **different** lambda")

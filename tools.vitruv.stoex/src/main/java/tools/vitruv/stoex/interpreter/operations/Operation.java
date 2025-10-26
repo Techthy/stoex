@@ -13,8 +13,6 @@ import tools.vitruv.stoex.stoex.SampledDistribution;
 
 public interface Operation {
 
-    public Object evaluate(Object left, Object right);
-
     public int evaluate(int left, int right);
 
     public double evaluate(double left, double right);

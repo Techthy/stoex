@@ -13,9 +13,12 @@ import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
 
 /**
- * Implements the operation "addition" for different kinds of operands.
- *
- *
+ * This class implements the add operation for different kinds of operands.
+ * Most of the implementations are based on closed form solutions for the sum of
+ * distributions. If no closed form solution exists, a Monte Carlo sampling
+ * approach
+ * is used to approximate the resulting distribution.
+ * 
  * @author Hammann
  */
 public class AddOperation implements Operation {
@@ -34,14 +37,9 @@ public class AddOperation implements Operation {
 		return left + right;
 	}
 
-	@Override
-	public Object evaluate(Object left, Object right) {
-		double leftVal = toDouble(left);
-		double rightVal = toDouble(right);
-		return leftVal + rightVal;
-	}
-
+	// ==================================================================
 	// Closed form solution for CONTINUOUS distributions
+	// ==================================================================
 
 	@Override
 	public NormalDistribution evaluate(NormalDistribution left, NormalDistribution right) {
@@ -94,7 +92,9 @@ public class AddOperation implements Operation {
 		return result;
 	}
 
-	// Scalar + Distribution cases for CONTINUOUS distributions
+	// ==================================================================
+	// Scalar cases for CONTINUOUS distributions
+	// ==================================================================
 
 	@Override
 	public NormalDistribution evaluate(NormalDistribution left, double right) {
@@ -123,7 +123,9 @@ public class AddOperation implements Operation {
 		return evaluate(samplesRight, left);
 	}
 
+	// ==================================================================
 	// Closed form solution for DISCRETE distributions
+	// ==================================================================
 
 	@Override
 	public PoissonDistribution evaluate(PoissonDistribution left, PoissonDistribution right) {
@@ -167,7 +169,10 @@ public class AddOperation implements Operation {
 		return conv.combine(left, right, ProbabilityFunctionOperations.ADD);
 	}
 
+	// ==================================================================
 	// Scalar + Distribution cases for DISCRETE distributions
+	// ==================================================================
+
 	@Override
 	public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction left, int right) {
 		IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();

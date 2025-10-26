@@ -5,6 +5,7 @@ import tools.vitruv.stoex.stoex.BinomialDistribution;
 import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
+import tools.vitruv.stoex.stoex.LognormalDistribution;
 import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.PoissonDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
@@ -38,11 +39,11 @@ public class AddOperation implements Operation {
 	}
 
 	// ==================================================================
-	// Closed form solution for CONTINUOUS distributions
+	// CONTINUOUS
 	// ==================================================================
 
 	@Override
-	public NormalDistribution evaluate(NormalDistribution left, NormalDistribution right) {
+	public ProbabilityDensityFunction evaluate(NormalDistribution left, NormalDistribution right) {
 		NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
 		result.setMu(left.getMu() + right.getMu());
 		result.setSigma(Math.sqrt(Math.pow(left.getSigma(), 2) + Math.pow(right.getSigma(), 2)));
@@ -124,11 +125,11 @@ public class AddOperation implements Operation {
 	}
 
 	// ==================================================================
-	// Closed form solution for DISCRETE distributions
+	// DISCRETE
 	// ==================================================================
 
 	@Override
-	public PoissonDistribution evaluate(PoissonDistribution left, PoissonDistribution right) {
+	public ProbabilityMassFunction evaluate(PoissonDistribution left, PoissonDistribution right) {
 		PoissonDistribution result = StoexFactory.eINSTANCE.createPoissonDistribution();
 		result.setLambda(left.getLambda() + right.getLambda());
 		return result;
@@ -170,7 +171,7 @@ public class AddOperation implements Operation {
 	}
 
 	// ==================================================================
-	// Scalar + Distribution cases for DISCRETE distributions
+	// Scalar cases for DISCRETE distributions
 	// ==================================================================
 
 	@Override
@@ -207,4 +208,9 @@ public class AddOperation implements Operation {
 		throw new IllegalArgumentException("Cannot convert " + value + " to double");
 	}
 
+	@Override
+	public ProbabilityDensityFunction evaluate(LognormalDistribution left, LognormalDistribution right) {
+		SampleHelper helper = new SampleHelper();
+		return evaluate(helper.getSamples(left), helper.getSamples(right));
+	}
 }

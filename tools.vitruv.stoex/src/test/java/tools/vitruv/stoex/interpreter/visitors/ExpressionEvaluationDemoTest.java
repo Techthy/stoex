@@ -20,6 +20,7 @@ import tools.vitruv.stoex.stoex.Expression;
  */
 public class ExpressionEvaluationDemoTest {
 
+    // Disabled because this is more of a demo than a test with assertions
     @Test
     @Disabled
     public void testExpressionEvaluationDemo() {

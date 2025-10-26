@@ -5,6 +5,7 @@ import tools.vitruv.stoex.stoex.BinomialDistribution;
 import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
+import tools.vitruv.stoex.stoex.LognormalDistribution;
 import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.PoissonDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
@@ -19,7 +20,7 @@ public interface Operation {
 
     public ProbabilityDensityFunction evaluate(ExponentialDistribution left, ExponentialDistribution right);
 
-    public NormalDistribution evaluate(NormalDistribution left, NormalDistribution right);
+    public ProbabilityDensityFunction evaluate(NormalDistribution left, NormalDistribution right);
 
     public SampledDistribution evaluate(double[] left, double[] right);
 
@@ -33,7 +34,7 @@ public interface Operation {
 
     public SampledDistribution evaluate(double left, double[] right);
 
-    public PoissonDistribution evaluate(PoissonDistribution left, PoissonDistribution right);
+    public ProbabilityMassFunction evaluate(PoissonDistribution left, PoissonDistribution right);
 
     public ProbabilityMassFunction evaluate(BernoulliDistribution left, BernoulliDistribution right);
 
@@ -47,4 +48,5 @@ public interface Operation {
 
     public IntProbabilityMassFunction evaluate(int left, IntProbabilityMassFunction right);
 
+    public ProbabilityDensityFunction evaluate(LognormalDistribution left, LognormalDistribution right);
 }

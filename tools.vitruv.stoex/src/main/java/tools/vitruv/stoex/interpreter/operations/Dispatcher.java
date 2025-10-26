@@ -5,6 +5,7 @@ import tools.vitruv.stoex.stoex.BinomialDistribution;
 import tools.vitruv.stoex.stoex.ExponentialDistribution;
 import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
+import tools.vitruv.stoex.stoex.LognormalDistribution;
 import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.PoissonDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
@@ -26,16 +27,10 @@ public class Dispatcher {
 
         switch (l) {
             case NORMAL -> {
-                switch (r) {
-                    case NORMAL -> {
-                        return operation.evaluate((NormalDistribution) left, (NormalDistribution) right);
-                    }
-                    case NUMBER -> {
-                        return operation.evaluate((NormalDistribution) left, ((Number) right).doubleValue());
-                    }
-                    default -> {
-                        // fallthrough to numeric fallback below
-                    }
+                if (r == TypeKind.NORMAL) {
+                    return operation.evaluate((NormalDistribution) left, (NormalDistribution) right);
+                } else if (isNumeric(r)) {
+                    return operation.evaluate((NormalDistribution) left, ((Number) right).doubleValue());
                 }
             }
             case EXPONENTIAL -> {
@@ -46,6 +41,11 @@ public class Dispatcher {
             case GAMMA -> {
                 if (r == TypeKind.GAMMA) {
                     return operation.evaluate((GammaDistribution) left, (GammaDistribution) right);
+                }
+            }
+            case LOGNORMAL -> {
+                if (r == TypeKind.LOGNORMAL) {
+                    return operation.evaluate((LognormalDistribution) left, (LognormalDistribution) right);
                 }
             }
             case PDF -> {
@@ -133,6 +133,10 @@ public class Dispatcher {
                 || kind == TypeKind.BINOMIAL;
     }
 
+    private boolean isNumeric(TypeKind kind) {
+        return kind == TypeKind.NUMBER || kind == TypeKind.INTEGER;
+    }
+
     private ProbabilityMassFunction evalPMF(ProbabilityMassFunction left, ProbabilityMassFunction right) {
         ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
         return operation.evaluate(
@@ -144,6 +148,7 @@ public class Dispatcher {
         NORMAL,
         EXPONENTIAL,
         GAMMA,
+        LOGNORMAL,
         PDF,
         PMF,
         POISSON,
@@ -162,9 +167,10 @@ public class Dispatcher {
             return TypeKind.EXPONENTIAL;
         if (o instanceof GammaDistribution)
             return TypeKind.GAMMA;
+        if (o instanceof LognormalDistribution)
+            return TypeKind.LOGNORMAL;
         if (o instanceof ProbabilityDensityFunction)
             return TypeKind.PDF;
-
         if (o instanceof IntProbabilityMassFunction)
             return TypeKind.INT_PMF;
         if (o instanceof PoissonDistribution)

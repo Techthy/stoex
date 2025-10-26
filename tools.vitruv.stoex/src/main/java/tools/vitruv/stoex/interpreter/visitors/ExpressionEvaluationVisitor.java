@@ -328,8 +328,8 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
                 return multOp.evaluate(left, right);
             }
             case DIV -> {
-                DivOperation divOp = new DivOperation();
-                return divOp.evaluate(left, right);
+                Dispatcher dispatcher = new Dispatcher(new DivOperation());
+                return dispatcher.dispatch(left, right);
             }
             case MOD -> {
                 ModOperation modOp = new ModOperation();

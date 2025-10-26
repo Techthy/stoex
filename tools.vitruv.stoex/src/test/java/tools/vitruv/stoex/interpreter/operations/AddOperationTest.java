@@ -58,7 +58,7 @@ public class AddOperationTest {
         NormalDistribution dist2 = StoexFactory.eINSTANCE.createNormalDistribution();
         dist2.setMu(1);
         dist2.setSigma(2);
-        NormalDistribution result = addOperation.evaluate(dist1, dist2);
+        NormalDistribution result = (NormalDistribution) addOperation.evaluate(dist1, dist2);
 
         // sum of normal distributions the mean is simply the sum of both means
         assertEquals(1, result.getMu(), 0.001);
@@ -116,7 +116,7 @@ public class AddOperationTest {
         PoissonDistribution dist2 = StoexFactory.eINSTANCE.createPoissonDistribution();
         dist2.setLambda(3.0);
 
-        PoissonDistribution result = addOperation.evaluate(dist1, dist2);
+        PoissonDistribution result = (PoissonDistribution) addOperation.evaluate(dist1, dist2);
 
         assertEquals(5.0, result.getLambda(), 0.001);
     }

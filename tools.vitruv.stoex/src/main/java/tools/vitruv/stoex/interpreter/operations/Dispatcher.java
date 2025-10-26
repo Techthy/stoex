@@ -29,6 +29,9 @@ public class Dispatcher {
             case NORMAL -> {
                 if (r == TypeKind.NORMAL) {
                     return operation.evaluate((NormalDistribution) left, (NormalDistribution) right);
+                } else if (TypeKind.PDF == r) {
+                    return operation.evaluate(new SampleHelper().getSamples((NormalDistribution) left),
+                            new SampleHelper().getSamples((ProbabilityDensityFunction) right));
                 } else if (isNumeric(r)) {
                     return operation.evaluate((NormalDistribution) left, ((Number) right).doubleValue());
                 }
@@ -111,6 +114,9 @@ public class Dispatcher {
                 if (r == TypeKind.INT_PMF) {
                     ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
                     return operation.evaluate(conv.convertToPMF((IntProbabilityMassFunction) right), (Integer) left);
+                } else if (TypeKind.PDF == r) {
+                    return operation.evaluate((int) left,
+                            new SampleHelper().getSamples((ProbabilityDensityFunction) right));
                 } else if (r == TypeKind.NORMAL) {
                     return operation.evaluate(((Number) left).doubleValue(), (NormalDistribution) right);
                 } else if (r == TypeKind.INTEGER) {

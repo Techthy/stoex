@@ -18,6 +18,7 @@ import tools.vitruv.stoex.stoex.Expression;
 import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.IntLiteral;
 import tools.vitruv.stoex.stoex.NormalDistribution;
+import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
 import tools.vitruv.stoex.stoex.StringLiteral;
 
@@ -319,4 +320,27 @@ class StoexEvaluatorTest {
         assertEquals(7, meanInt);
     }
 
+    @Test
+    @DisplayName("Test for Damper Case Study ")
+    void testDamperCaseStudy() {
+        NormalDistribution k = StoexFactory.eINSTANCE.createNormalDistribution();
+        k.setMu(27000);
+        k.setSigma(1200);
+
+        NormalDistribution m = StoexFactory.eINSTANCE.createNormalDistribution();
+        m.setMu(50.71);
+        m.setSigma(0.5);
+
+        NormalDistribution c = StoexFactory.eINSTANCE.createNormalDistribution();
+        c.setMu(140);
+        c.setSigma(7);
+
+        evaluator.setVariable("k", k);
+        evaluator.setVariable("m", m);
+        evaluator.setVariable("c", c);
+        Expression dampingRatioExpr = evaluator.evaluate("c / (2 * (k * m)^0.5)");
+
+        assertTrue(dampingRatioExpr instanceof SampledDistribution);
+        assertEquals(0.0598204473, evaluator.getMean(dampingRatioExpr).doubleValue(), 0.001);
+    }
 }

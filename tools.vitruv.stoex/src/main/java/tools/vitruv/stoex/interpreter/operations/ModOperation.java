@@ -1,10 +1,7 @@
 package tools.vitruv.stoex.interpreter.operations;
 
-import tools.vitruv.stoex.stoex.ProbabilityFunction;
-
 /**
- * Implements the operation "modulo" for different kinds of operands.
- * Note, that so far only integers and doubles are supported.
+ * This class implements the modulus operation for numeric operands.
  * 
  * @author Hammann
  */
@@ -23,9 +20,6 @@ public class ModOperation {
             return evaluate((int) leftInt, (int) rightInt);
         }
 
-        if (left instanceof ProbabilityFunction || right instanceof ProbabilityFunction) {
-            throw new IllegalArgumentException("Modulo operation is not defined for ProbabilityFunctions.");
-        }
         return evaluate(toDouble(left), toDouble(right));
     }
 

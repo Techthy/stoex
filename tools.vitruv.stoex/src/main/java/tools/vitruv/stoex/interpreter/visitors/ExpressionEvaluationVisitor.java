@@ -324,8 +324,8 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
     private Object evaluateProductOperation(Object left, Object right, ProductOperations operation) {
         switch (operation) {
             case MULT -> {
-                MultOperation multOp = new MultOperation();
-                return multOp.evaluate(left, right);
+                Dispatcher dispatcher = new Dispatcher(new MultOperation());
+                return dispatcher.dispatch(left, right);
             }
             case DIV -> {
                 Dispatcher dispatcher = new Dispatcher(new DivOperation());

@@ -53,7 +53,7 @@ public class Dispatcher {
                     return operation.evaluate(
                             new SampleHelper().getSamples((ProbabilityDensityFunction) left),
                             new SampleHelper().getSamples((ProbabilityDensityFunction) right));
-                } else if (r == TypeKind.NUMBER) {
+                } else if (isNumeric(r)) {
                     return operation.evaluate(
                             new SampleHelper().getSamples((ProbabilityDensityFunction) left),
                             ((Number) right).doubleValue());

@@ -1,24 +1,46 @@
 package tools.vitruv.stoex.interpreter.operations;
 
+import tools.vitruv.stoex.stoex.BernoulliDistribution;
+import tools.vitruv.stoex.stoex.BinomialDistribution;
+import tools.vitruv.stoex.stoex.ExponentialDistribution;
+import tools.vitruv.stoex.stoex.GammaDistribution;
 import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.LognormalDistribution;
 import tools.vitruv.stoex.stoex.NormalDistribution;
+import tools.vitruv.stoex.stoex.PoissonDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
 import tools.vitruv.stoex.stoex.ProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
 
-public class MultOperation {
+/**
+ * This class implements the multiplication operation for different kinds of
+ * operands.
+ * Most of the implementations are based on closed form solutions for the
+ * product
+ * of
+ * distributions. If no closed form solution exists, a Monte Carlo sampling
+ * approach
+ * is used to approximate the resulting distribution.
+ * 
+ * @author Hammann
+ */
+public class MultOperation implements Operation {
+
+    @Override
     public int evaluate(int left, int right) {
         return left * right;
     }
 
+    @Override
     public double evaluate(double left, double right) {
         return left * right;
     }
-
+    // ==================================================================
     // CONTINUOUS
+    // ==================================================================
 
+    @Override
     public LognormalDistribution evaluate(LognormalDistribution left, LognormalDistribution right) {
         LognormalDistribution result = StoexFactory.eINSTANCE.createLognormalDistribution();
         result.setMu(left.getMu() + right.getMu());
@@ -26,7 +48,8 @@ public class MultOperation {
         return result;
     }
 
-    public SampledDistribution multDistributions(double[] samplesLeft, double[] samplesRight) {
+    @Override
+    public SampledDistribution evaluate(double[] samplesLeft, double[] samplesRight) {
 
         MonteCarloOperation op = new MonteCarloOperation();
         double[] combinedSamples = op.evaluateTermOperation(samplesLeft, samplesRight, 10000,
@@ -39,8 +62,11 @@ public class MultOperation {
         return result;
     }
 
-    // Scalar * Distribution cases for CONTINUOUS distributions
+    // ==================================================================
+    // Scalar cases for CONTINUOUS distributions
+    // ==================================================================
 
+    @Override
     public NormalDistribution evaluate(NormalDistribution left, double right) {
         NormalDistribution result = StoexFactory.eINSTANCE.createNormalDistribution();
         result.setMu(left.getMu() * right);
@@ -48,10 +74,12 @@ public class MultOperation {
         return result;
     }
 
+    @Override
     public NormalDistribution evaluate(double left, NormalDistribution right) {
         return evaluate(right, left);
     }
 
+    @Override
     public SampledDistribution evaluate(double[] samplesLeft, double right) {
         SampledDistribution result = StoexFactory.eINSTANCE.createSampledDistribution();
         for (double d : samplesLeft) {
@@ -60,20 +88,26 @@ public class MultOperation {
         return result;
     }
 
+    @Override
     public SampledDistribution evaluate(double left, double[] samplesRight) {
         return evaluate(samplesRight, left);
     }
 
+    // ==================================================================
     // DISCRETE
+    // ==================================================================
 
-    public IntProbabilityMassFunction multDistributions(IntProbabilityMassFunction left,
+    public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction left,
             IntProbabilityMassFunction right) {
         ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
         return conv.combine(left, right, ProbabilityFunctionOperations.MUL);
     }
 
-    // Scalar * Distribution cases for DISCRETE distributions
+    // ==================================================================
+    // Scalar cases for DISCRETE distributions
+    // ==================================================================
 
+    @Override
     public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction left, int right) {
         IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
         for (var sample : left.getSamples()) {
@@ -85,64 +119,45 @@ public class MultOperation {
         return result;
     }
 
+    @Override
     public IntProbabilityMassFunction evaluate(int left, IntProbabilityMassFunction right) {
         return evaluate(right, left);
     }
 
-    // Fallback that handles String and Boolean as well as the mixture of types
-    public Object evaluate(Object left, Object right) {
-        if (left instanceof LognormalDistribution leftLog && right instanceof LognormalDistribution rightLog) {
-            return evaluate(leftLog, rightLog);
-        } else if (left instanceof ProbabilityDensityFunction leftPDF
-                && right instanceof ProbabilityDensityFunction rightPDF) {
-            SampleHelper helper = new SampleHelper();
-            return multDistributions(helper.getSamples(leftPDF), helper.getSamples(rightPDF));
-        } else if (left instanceof NormalDistribution leftNorm && right instanceof Number rightNum) {
-            return evaluate(leftNorm, rightNum.doubleValue());
-        } else if (left instanceof Number leftNum && right instanceof NormalDistribution rightNorm) {
-            return evaluate(rightNorm, leftNum.doubleValue());
-        } else if (left instanceof ProbabilityDensityFunction leftPDF && right instanceof Number rightNum) {
-            SampleHelper helper = new SampleHelper();
-            return evaluate(helper.getSamples(leftPDF), rightNum.doubleValue());
-        } else if (left instanceof Number leftNum && right instanceof ProbabilityDensityFunction rightPDF) {
-            SampleHelper helper = new SampleHelper();
-            return evaluate(helper.getSamples(rightPDF), leftNum.doubleValue());
-        } else if (left instanceof ProbabilityMassFunction leftPMF
-                && right instanceof ProbabilityMassFunction rightPMF) {
-            ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
-            return multDistributions(conv.convertToPMF(leftPMF), conv.convertToPMF(rightPMF));
-        } else if (left instanceof ProbabilityMassFunction leftPMF && right instanceof Integer rightInt) {
-            ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
-            return evaluate(conv.convertToPMF(leftPMF), rightInt);
-        } else if (left instanceof Integer leftInt && right instanceof IntProbabilityMassFunction rightIntPMF) {
-            ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
-            return evaluate(conv.convertToPMF(rightIntPMF), leftInt);
-        }
-
-        if (left instanceof Integer leftInt && right instanceof Integer rightInt) {
-            return evaluate((int) leftInt, (int) rightInt);
-        }
-
-        double leftVal = toDouble(left);
-        double rightVal = toDouble(right);
-
-        return evaluate(leftVal, rightVal);
-
+    @Override
+    public ProbabilityDensityFunction evaluate(ExponentialDistribution left, ExponentialDistribution right) {
+        SampleHelper helper = new SampleHelper();
+        return evaluate(helper.getSamples(left), helper.getSamples(right));
     }
 
-    private double toDouble(Object obj) {
-        if (obj instanceof Number number) {
-            return number.doubleValue();
-        } else if (obj instanceof Boolean bool) {
-            return bool ? 1.0 : 0.0;
-        } else if (obj instanceof String str) {
-            try {
-                return Double.parseDouble(str);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Cannot convert String to double: " + str);
-            }
-        } else {
-            throw new IllegalArgumentException("Unsupported type for multiplication: " + obj.getClass().getName());
-        }
+    @Override
+    public ProbabilityDensityFunction evaluate(NormalDistribution left, NormalDistribution right) {
+        SampleHelper helper = new SampleHelper();
+        return evaluate(helper.getSamples(left), helper.getSamples(right));
     }
+
+    @Override
+    public ProbabilityDensityFunction evaluate(GammaDistribution left, GammaDistribution right) {
+        SampleHelper helper = new SampleHelper();
+        return evaluate(helper.getSamples(left), helper.getSamples(right));
+    }
+
+    @Override
+    public ProbabilityMassFunction evaluate(PoissonDistribution left, PoissonDistribution right) {
+        ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
+        return evaluate(conv.convertToPMF(left), conv.convertToPMF(right));
+    }
+
+    @Override
+    public ProbabilityMassFunction evaluate(BernoulliDistribution left, BernoulliDistribution right) {
+        ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
+        return evaluate(conv.convertToPMF(left), conv.convertToPMF(right));
+    }
+
+    @Override
+    public ProbabilityMassFunction evaluate(BinomialDistribution left, BinomialDistribution right) {
+        ProbabilityMassFunctionHelper conv = new ProbabilityMassFunctionHelper();
+        return evaluate(conv.convertToPMF(left), conv.convertToPMF(right));
+    }
+
 }

@@ -10,6 +10,12 @@ import tools.vitruv.stoex.stoex.NormalDistribution;
 import tools.vitruv.stoex.stoex.ProbabilityFunction;
 import tools.vitruv.stoex.stoex.SampledDistribution;
 
+/**
+ * Helper class to obtain samples from different kinds of continuous
+ * distributions.
+ * 
+ * @author Hammann
+ */
 public class SampleHelper {
 
     private static final Random random = new Random();

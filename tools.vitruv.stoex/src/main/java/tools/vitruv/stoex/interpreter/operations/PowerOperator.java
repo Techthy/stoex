@@ -1,5 +1,6 @@
 package tools.vitruv.stoex.interpreter.operations;
 
+import tools.vitruv.stoex.stoex.IntProbabilityMassFunction;
 import tools.vitruv.stoex.stoex.ProbabilityDensityFunction;
 import tools.vitruv.stoex.stoex.SampledDistribution;
 import tools.vitruv.stoex.stoex.StoexFactory;
@@ -23,7 +24,16 @@ public class PowerOperator {
         return result;
     }
 
-    // TODO DISCRETE case
+    public IntProbabilityMassFunction evaluate(IntProbabilityMassFunction pmf, int exponent) {
+        IntProbabilityMassFunction result = StoexFactory.eINSTANCE.createIntProbabilityMassFunction();
+        for (var sample : pmf.getSamples()) {
+            var newSample = StoexFactory.eINSTANCE.createIntSample();
+            newSample.setValue((int) Math.pow(sample.getValue(), exponent));
+            newSample.setProbability(sample.getProbability());
+            result.getSamples().add(newSample);
+        }
+        return result;
+    }
 
     public Object evaluate(Object base, Object exponent) {
 
@@ -31,6 +41,10 @@ public class PowerOperator {
                 && exponent instanceof Number expNum) {
             SampleHelper helper = new SampleHelper();
             return evaluate(helper.getSamples(basePDF), expNum);
+        }
+
+        if (base instanceof IntProbabilityMassFunction basePMF && exponent instanceof Integer expInt) {
+            return evaluate(basePMF, (int) expInt);
         }
 
         if (base instanceof Integer baseInt && exponent instanceof Integer expInt) {

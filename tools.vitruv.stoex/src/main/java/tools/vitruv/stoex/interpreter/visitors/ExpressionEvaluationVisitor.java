@@ -314,8 +314,8 @@ public class ExpressionEvaluationVisitor extends StoexSwitch<Object> {
                 return dispatcher.dispatch(left, right);
             }
             case SUB -> {
-                SubOperation subOp = new SubOperation();
-                return subOp.evaluate(left, right);
+                Dispatcher dispatcher = new Dispatcher(new SubOperation());
+                return dispatcher.dispatch(left, right);
             }
             default -> throw new UnsupportedOperationException("Unknown term operation: " + operation);
         }
